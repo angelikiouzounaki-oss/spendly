@@ -400,6 +400,11 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
         <span class="export-icon">🗂</span>
         <div><div class="export-name">Full backup — JSON</div><div class="export-desc">Complete data backup, all time</div></div>
       </div>
+      <div class="export-option" onclick="triggerImport()">
+        <span class="export-icon">📥</span>
+        <div><div class="export-name">Import backup — JSON</div><div class="export-desc">Restore your data from a backup file</div></div>
+      </div>
+      <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importJSON(event)">
       <button class="cancel-btn" onclick="document.getElementById('export-modal').style.display='none'">Cancel</button>
     </div>
   </div>
