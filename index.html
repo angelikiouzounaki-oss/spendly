@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Spendly">
+
 <title>Spendly</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -105,7 +106,7 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
 
 /* MODAL — no display in CSS, controlled only by JS */
 .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(15,31,92,0.35) !important; z-index: 200 !important; align-items: flex-end !important; justify-content: center !important; }
-.modal { background: #fff !important; border-radius: 24px 24px 0 0 !important; width: 100% !important; max-width: 430px !important; padding: 20px 20px 40px !important; max-height: 88vh !important; overflow-y: auto !important; transition: transform 0.25s ease !important; }
+.modal { background: #fff !important; border-radius: 24px 24px 0 0 !important; width: 100% !important; max-width: 430px !important; padding: 20px 20px 40px !important; max-height: 88vh !important; overflow-y: scroll !important; -webkit-overflow-scrolling: touch !important; transition: transform 0.25s ease !important; }
 .modal-handle { width: 40px !important; height: 4px !important; background: #a8bdf5 !important; border-radius: 2px !important; margin: 0 auto 16px !important; }
 .modal-title { font-size: 17px !important; font-weight: 800 !important; color: #0f1f5c !important; margin-bottom: 20px !important; text-align: center !important; }
 .form-row { margin-bottom: 14px !important; }
@@ -194,7 +195,7 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
           <button class="period-btn" id="home-prev" onclick="navigatePeriod(-1)">‹</button>
           <div class="period-label-wrap">
             <div class="period-main" id="period-main-label"></div>
-            <div id="period-sub-wrap" style="margin-top:3px;text-align:center;"></div>
+            <div id="period-sub-wrap" style="margin-top:3px;text-align:center;display:none;"></div>
           </div>
           <button class="period-btn" id="home-next" onclick="navigatePeriod(1)">›</button>
         </div>
@@ -243,7 +244,7 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
           <button class="period-btn" id="tx-prev" onclick="navigatePeriodTx(-1)">‹</button>
           <div class="period-label-wrap">
             <div class="period-main" id="tx-period-main"></div>
-            <div id="tx-period-sub-wrap" style="margin-top:3px;text-align:center;"></div>
+            <div id="tx-period-sub-wrap" style="margin-top:3px;text-align:center;display:none;"></div>
           </div>
           <button class="period-btn" id="tx-next" onclick="navigatePeriodTx(1)">›</button>
         </div>
@@ -271,7 +272,7 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
           <button class="period-btn" id="chart-prev-btn" onclick="navChart(-1)">‹</button>
           <div class="period-label-wrap">
             <div class="period-main" id="chart-period-label"></div>
-            <div id="chart-badge-wrap" style="margin-top:3px;text-align:center;"></div>
+            <div id="chart-badge-wrap" style="margin-top:3px;text-align:center;display:none;"></div>
           </div>
           <button class="period-btn" id="chart-next-btn" onclick="navChart(1)">›</button>
         </div>
@@ -470,9 +471,8 @@ document.addEventListener('touchstart',e=>{
 },{passive:true});
 document.addEventListener('touchmove',e=>{
   if(!dragging) return;
-  e.preventDefault();
-  const dy=Math.max(0,e.touches[0].clientY-touchStartY);
-  modalInner().style.transform=`translateY(${dy}px)`;
+  const dy=e.touches[0].clientY-touchStartY;
+  if(dy>0) { e.preventDefault(); modalInner().style.transform=`translateY(${Math.max(0,dy)}px)`; }
 },{passive:false});
 document.addEventListener('touchend',e=>{
   if(!dragging) return; dragging=false;
@@ -528,6 +528,7 @@ function filterByRange(start,end){
 function setSubLabel(wrapId,text){
   const el=document.getElementById(wrapId);
   if(!el) return;
+  el.style.display=text?'block':'none';
   el.innerHTML=text?`<span class="period-sub">${text}</span>`:'';
 }
 
@@ -808,6 +809,7 @@ function renderCharts(){
   const {start,end,mainLabel,badge}=getDateRange(chartPeriod,chartOffset);
   document.getElementById('chart-period-label').textContent=mainLabel;
   const bw=document.getElementById('chart-badge-wrap');
+  bw.style.display=badge?'block':'none';
   bw.innerHTML=badge?'<span class="period-sub">'+badge+'</span>':'';
   document.getElementById('chart-next-btn').classList.toggle('disabled',chartOffset>=0);
   document.getElementById('chart-prev-btn').classList.toggle('disabled',false);
@@ -890,9 +892,9 @@ function renderMonthlyChart(start,end){
   }
   if(monthlyChart)monthlyChart.destroy();
   monthlyChart=new Chart(document.getElementById('monthly-chart').getContext('2d'),{
-    type:'bar',
-    data:{labels:months,datasets:[{data:amounts,backgroundColor:amounts.map((_,i)=>i===5?'#2d5be3':'#c2d0f7'),borderColor:amounts.map((_,i)=>i===5?'#1e44c8':'#a8bdf5'),borderWidth:2,borderRadius:8,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>fullLabels[ctx[0].dataIndex],label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#7a8cc0',font:{size:11,weight:'600'}}}}}
+    type:'line',
+    data:{labels:months,datasets:[{data:amounts,borderColor:'#2d5be3',backgroundColor:'rgba(45,91,227,0.08)',pointBackgroundColor:amounts.map((_,i)=>i===highlightIdx?'#2d5be3':'#a8bdf5'),pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,pointHoverRadius:7,tension:0.35,fill:true,borderWidth:2.5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>fullLabels[ctx[0].dataIndex],label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{color:'#eef2fd'},ticks:{color:'#7a8cc0',font:{size:10,weight:'600'},maxRotation:20}}}}
   });
   document.getElementById('trend-legend').innerHTML=`<span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:#2d5be3;display:inline-block;"></span>Current month</span><span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:#c2d0f7;display:inline-block;"></span>Previous</span>`;
 }
@@ -905,7 +907,7 @@ function renderWeeklyChart(start,end){
     const amts=[0,0,0,0];
     filterByRange(start,end).forEach(e=>{if(e.time){const h=parseInt(e.time.split(':')[0]);amts[Math.min(3,Math.floor(h/6))]+=e.amount;}});
     if(weeklyChart)weeklyChart.destroy();
-    weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{type:'bar',data:{labels:blocks,datasets:[{data:amts,backgroundColor:'#c2d0f7',borderColor:'#a8bdf5',borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#7a8cc0',font:{size:11}}}}}});
+    weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{type:'line',data:{labels:blocks,datasets:[{data:amts,borderColor:'#2d5be3',backgroundColor:'rgba(45,91,227,0.08)',pointBackgroundColor:'#2d5be3',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,tension:0.35,fill:true,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{color:'#eef2fd'},ticks:{color:'#7a8cc0',font:{size:11}}}}}});
     document.getElementById('trend-legend').innerHTML='';
     return;
   } else if(chartPeriod==='week'){
@@ -915,7 +917,7 @@ function renderWeeklyChart(start,end){
     const amts=[0,0,0,0,0,0,0];
     for(let i=0;i<7;i++){const wd=new Date(start);wd.setDate(start.getDate()+i);filterByRange(start,end).forEach(e=>{const d=new Date(e.date);d.setHours(12);if(d.toDateString()===wd.toDateString())amts[i]+=e.amount;});}
     if(weeklyChart)weeklyChart.destroy();
-    weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{type:'bar',data:{labels:days,datasets:[{data:amts,backgroundColor:amts.map((_,i)=>i===(new Date().getDay()+6)%7&&chartOffset===0?'#2d5be3':'#c2d0f7'),borderColor:'#a8bdf5',borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>dayFull[ctx[0].dataIndex],label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#7a8cc0',font:{size:11}}}}}});
+    weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{type:'line',data:{labels:days,datasets:[{data:amts,borderColor:'#2d5be3',backgroundColor:'rgba(45,91,227,0.08)',pointBackgroundColor:amts.map((_,i)=>i===(new Date().getDay()+6)%7&&chartOffset===0?'#2d5be3':'#a8bdf5'),pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,tension:0.35,fill:true,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>dayFull[ctx[0].dataIndex],label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{color:'#eef2fd'},ticks:{color:'#7a8cc0',font:{size:11}}}}}});
     document.getElementById('trend-legend').innerHTML='';
     return;
   } else if(chartPeriod==='month'){
@@ -924,7 +926,7 @@ function renderWeeklyChart(start,end){
     while(cur<=end){const we=new Date(cur);we.setDate(cur.getDate()+6);if(we>end)we.setTime(end.getTime());weeks.push({s:new Date(cur),e:new Date(we)});cur.setDate(cur.getDate()+7);}
     const amts=weeks.map(w=>filterByRange(w.s,w.e).reduce((s,e)=>s+e.amount,0));
     if(weeklyChart)weeklyChart.destroy();
-    weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{type:'bar',data:{labels:weeks.map((_,i)=>'W'+(i+1)),datasets:[{data:amts,backgroundColor:'#c2d0f7',borderColor:'#a8bdf5',borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>weeks[ctx[0].dataIndex].s.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+weeks[ctx[0].dataIndex].e.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#7a8cc0',font:{size:11}}}}}});
+    weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{type:'line',data:{labels:weeks.map((_,i)=>'W'+(i+1)),datasets:[{data:amts,borderColor:'#2d5be3',backgroundColor:'rgba(45,91,227,0.08)',pointBackgroundColor:'#2d5be3',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,tension:0.35,fill:true,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>weeks[ctx[0].dataIndex].s.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+weeks[ctx[0].dataIndex].e.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{color:'#eef2fd'},ticks:{color:'#7a8cc0',font:{size:11}}}}}});
     document.getElementById('trend-legend').innerHTML='';
     return;
   }
@@ -985,7 +987,7 @@ function showPage(id,btn){
   document.getElementById('page-'+id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  if(id==='charts'){chartsDate=new Date();renderCharts();}
+  if(id==='charts'){renderCharts();}
   if(id==='tx') renderTxPage();
 }
 
