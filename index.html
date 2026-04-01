@@ -276,6 +276,15 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
       </div>
     </div>
 
+    <div class="summary">
+      <div class="card accent">
+        <div class="card-label" id="chart-total-label">Spent this month</div>
+        <div class="card-value" id="chart-total-spent">€0.00</div>
+        <div class="card-sub" id="chart-tx-count">0 transactions</div>
+      </div>
+      <div class="card small-blue"><div class="card-label" id="chart-card1-label">Transactions</div><div class="card-value" id="chart-card1-val">0</div><div class="card-sub" id="chart-card1-sub"></div></div>
+      <div class="card small-blue"><div class="card-label" id="chart-card2-label">Daily avg</div><div class="card-value" id="chart-card2-val">€0.00</div><div class="card-sub" id="chart-card2-sub"></div></div>
+    </div>
     <div class="sec-pad"><div class="section-title">Spending trend</div></div>
     <div class="chart-wrap">
       <div style="position:relative;height:220px;"><canvas id="trend-chart"></canvas></div>
@@ -515,7 +524,7 @@ function filterByRange(start,end){
 function setSubLabel(wrapId,text){
   const el=document.getElementById(wrapId);
   if(!el) return;
-  el.style.display=text?'block':'none';
+  el.style.display=text?'inline-block':'none';
   el.innerHTML=text?`<span class="period-sub">${text}</span>`:'';
 }
 
@@ -525,11 +534,15 @@ function setPeriod(p,btn){
   document.querySelectorAll('#page-home .period-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderOverview();
+renderCharts();
+renderTxPage();
 }
 function navigatePeriod(dir){
   if(dir>0 && periodOffset>=0) return;
   periodOffset+=dir;
   renderOverview();
+renderCharts();
+renderTxPage();
 }
 function renderOverview(){
   const {start,end,mainLabel,subLabel,totalLabel}=getDateRange(activePeriod,periodOffset);
@@ -776,7 +789,9 @@ function askDelete(id,label,amount){
 }
 function cancelDelete(){pendingDeleteId=null;document.getElementById('confirm-dialog').style.display='none';}
 function confirmDelete(){
-  if(pendingDeleteId){expenses=expenses.filter(e=>e.id!==pendingDeleteId);save();renderOverview();renderTxPage();}
+  if(pendingDeleteId){expenses=expenses.filter(e=>e.id!==pendingDeleteId);save();renderOverview();
+renderCharts();
+renderTxPage();}
   cancelDelete();
 }
 
@@ -797,6 +812,32 @@ function renderCharts(){
   document.getElementById('chart-period-label').textContent=mainLabel;
   setSubLabel('chart-badge-wrap',badge);
   document.getElementById('chart-next-btn').classList.toggle('disabled',chartOffset>=0);
+  // Summary cards
+  const txs=filterByRange(start,end);
+  const total=txs.reduce((s,e)=>s+e.amount,0);
+  document.getElementById('chart-total-label').textContent=totalLabel;
+  document.getElementById('chart-total-spent').textContent=fmt(total);
+  document.getElementById('chart-tx-count').textContent=txs.length+' transaction'+(txs.length!==1?'s':'');
+  // Context cards — reuse same logic as other pages
+  const lbl1=document.getElementById('chart-card1-label'),val1=document.getElementById('chart-card1-val'),sub1=document.getElementById('chart-card1-sub');
+  const lbl2=document.getElementById('chart-card2-label'),val2=document.getElementById('chart-card2-val'),sub2=document.getElementById('chart-card2-sub');
+  if(chartPeriod==='today'){
+    const biggest=txs.length?txs.reduce((a,b)=>a.amount>b.amount?a:b,txs[0]):null;
+    lbl1.textContent='Highest expense';val1.textContent=biggest?fmt(biggest.amount):'€0.00';sub1.textContent=biggest?(biggest.store||'—'):'';
+    lbl2.textContent='Transactions';val2.textContent=txs.length;sub2.textContent='today';
+  } else if(chartPeriod==='week'){
+    lbl1.textContent='Transactions';val1.textContent=txs.length;sub1.textContent='this week';
+    lbl2.textContent='Daily avg';val2.textContent=fmt(total/7);sub2.textContent='per day';
+  } else if(chartPeriod==='month'){
+    lbl1.textContent='Transactions';val1.textContent=txs.length;sub1.textContent='this month';
+    const days=Math.round((end-start)/(1000*60*60*24))+1;
+    lbl2.textContent='Daily avg';val2.textContent=fmt(days>0?total/days:0);sub2.textContent='per day';
+  } else {
+    lbl1.textContent='Transactions';val1.textContent=txs.length;sub1.textContent='this year';
+    const mm={};txs.forEach(e=>{const m=e.date.slice(0,7);mm[m]=(mm[m]||0)+e.amount;});
+    const cnt=Object.keys(mm).length;
+    lbl2.textContent='Monthly avg';val2.textContent=fmt(cnt?total/cnt:0);sub2.textContent='per month';
+  }
   renderTrendChart();
   renderPieChart();
   renderHBars();
@@ -995,6 +1036,8 @@ function importJSON(event){
         save();
         document.getElementById('export-modal').style.display='none';
         renderOverview();
+renderCharts();
+renderTxPage();
         renderTxPage();
         alert('Imported '+imported.length+' transactions successfully!');
       }
@@ -1064,10 +1107,14 @@ function addExpense(){
   const now=new Date();
   const time=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
   expenses.push({id:Date.now().toString(),amount,store:selStore,tag:selTag,note,date,time,category:selCat});
-  save();forceCloseModal();renderOverview();renderTxPage();
+  save();forceCloseModal();renderOverview();
+renderCharts();
+renderTxPage();
 }
 
 renderOverview();
+renderCharts();
+renderTxPage();
 </script>
 </body>
 </html>
