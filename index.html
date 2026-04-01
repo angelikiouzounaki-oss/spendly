@@ -44,7 +44,7 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
 .period-btn { background: rgba(255,255,255,0.2) !important; border: 1.5px solid rgba(255,255,255,0.4) !important; border-radius: 50% !important; width: 30px !important; height: 30px !important; cursor: pointer !important; color: #fff !important; font-size: 16px !important; font-weight: 700 !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
 .period-btn:active { background: rgba(255,255,255,0.4) !important; }
 .period-label-wrap { flex: 1 !important; text-align: center !important; }
-.period-main { font-size: 20px !important; font-weight: 800 !important; color: #fff !important; line-height: 1.1 !important; }
+.period-main { font-size: 15px !important; font-weight: 800 !important; color: #fff !important; line-height: 1.2 !important; }
 .period-sub { font-size: 12px !important; color: rgba(255,255,255,0.7) !important; font-weight: 500 !important; margin-top: 1px !important; }
 
 /* ── SUMMARY ── */
@@ -129,7 +129,7 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
 .submit-btn { width: 100% !important; background: #2d5be3 !important; color: #fff !important; border: 2px solid #1e44c8 !important; border-radius: 12px !important; padding: 15px !important; font-size: 16px !important; font-weight: 800 !important; cursor: pointer !important; margin-top: 10px !important; }
 
 /* confirm */
-.confirm-overlay { position: fixed !important; inset: 0 !important; background: rgba(15,31,92,0.4) !important; z-index: 300 !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 20px !important; }
+.confirm-overlay { position: fixed !important; inset: 0 !important; background: rgba(15,31,92,0.4) !important; z-index: 300 !important; align-items: center !important; justify-content: center !important; padding: 20px !important; }
 .confirm-box { background: #fff !important; border-radius: 18px !important; padding: 28px 24px !important; width: 100% !important; max-width: 340px !important; text-align: center !important; }
 .confirm-title { font-size: 17px !important; font-weight: 800 !important; color: #0f1f5c !important; margin-bottom: 8px !important; }
 .confirm-msg { font-size: 14px !important; color: #7a8cc0 !important; margin-bottom: 24px !important; line-height: 1.5 !important; }
@@ -287,46 +287,49 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
   <div class="modal-overlay" id="modal" style="display:none;" onclick="closeModalOutside(event)">
     <div class="modal">
       <div class="modal-handle"></div>
-      <div style="text-align:center;font-size:11px;color:#a8bdf5;margin-bottom:4px;">Swipe down or tap outside to close</div>
-      <div class="modal-title">Add expense</div>
-      <div class="form-row">
-        <label class="form-label">Amount (€)</label>
-        <input type="number" step="0.01" min="0" class="form-input amount-input" id="inp-amount" placeholder="0.00">
-      </div>
-      <div class="form-row">
-        <label class="form-label">Date</label>
-        <input type="date" class="form-input" id="inp-date">
-      </div>
-      <div class="form-row">
-        <label class="form-label">Category</label>
-        <div class="cat-grid" id="cat-grid"></div>
-      </div>
-      <div class="form-row" id="store-row">
-        <label class="form-label" id="store-label">Store</label>
-        <div class="pills-wrap" id="store-pills"></div>
-        <div class="custom-input-row" id="custom-store-row" style="display:none;">
-          <input type="text" class="form-input" id="inp-custom-store" placeholder="Name...">
-          <button onclick="addCustomStore()">Save</button>
-        </div>
-      </div>
-      <div class="form-row" id="tag-row" style="display:none;">
-        <label class="form-label" id="tag-label">Purpose</label>
-        <div class="pills-wrap" id="tag-pills"></div>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Note (optional)</label>
-        <input type="text" class="form-input" id="inp-note" placeholder="e.g. weekly shop">
-      </div>
-      <button class="submit-btn" onclick="addExpense()">Add expense</button>
+
+```
+  <div class="modal-title">Add expense</div>
+  <div class="form-row">
+    <label class="form-label">Amount (€)</label>
+    <input type="number" step="0.01" min="0" class="form-input amount-input" id="inp-amount" placeholder="0.00">
+  </div>
+  <div class="form-row">
+    <label class="form-label">Date</label>
+    <input type="date" class="form-input" id="inp-date">
+  </div>
+  <div class="form-row">
+    <label class="form-label">Category</label>
+    <div class="cat-grid" id="cat-grid"></div>
+  </div>
+  <div class="form-row" id="store-row">
+    <label class="form-label" id="store-label">Store</label>
+    <div class="pills-wrap" id="store-pills"></div>
+    <div class="custom-input-row" id="custom-store-row" style="display:none;">
+      <input type="text" class="form-input" id="inp-custom-store" placeholder="Name...">
+      <button onclick="addCustomStore()">Save</button>
     </div>
+  </div>
+  <div class="form-row" id="tag-row" style="display:none;">
+    <label class="form-label" id="tag-label">Purpose</label>
+    <div class="pills-wrap" id="tag-pills"></div>
+  </div>
+  <div class="form-row">
+    <label class="form-label">Note (optional)</label>
+    <input type="text" class="form-input" id="inp-note" placeholder="e.g. weekly shop">
+  </div>
+  <button class="submit-btn" onclick="addExpense()">Add expense</button>
+</div>
+```
+
   </div>
 
   <!-- DELETE CONFIRM -->
 
   <div class="confirm-overlay" id="confirm-dialog" style="display:none;">
     <div class="confirm-box">
-      <div class="confirm-title">Delete expense?</div>
-      <div class="confirm-msg" id="confirm-msg">Are you sure?</div>
+      <div class="confirm-title">Are you sure?</div>
+      <div class="confirm-msg" id="confirm-msg"></div>
       <div class="confirm-btns">
         <button class="confirm-cancel" onclick="cancelDelete()">Cancel</button>
         <button class="confirm-delete" onclick="confirmDelete()">Delete</button>
@@ -423,33 +426,39 @@ function fmtShort(n){return n>=1000?'€'+(n/1000).toFixed(1)+'k':'€'+Math.rou
 // ── PERIOD LOGIC ──
 function getDateRange(period, offset){
   const today=new Date(); today.setHours(0,0,0,0);
-  let start,end,mainLabel,subLabel;
+  let start,end,mainLabel,subLabel,totalLabel;
   if(period==='today'){
     const d=new Date(today); d.setDate(d.getDate()+offset);
     start=new Date(d); end=new Date(d); end.setHours(23,59,59,999);
-    const isToday=offset===0;
-    mainLabel=isToday?'Today':d.toLocaleDateString('en-GB',{weekday:'long'});
-    subLabel=d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    // Main = full date always e.g. "Tuesday, 1 April 2026"
+    mainLabel=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    subLabel='';
+    totalLabel='Spent today';
   } else if(period==='week'){
     const ws=new Date(today); ws.setDate(today.getDate()-((today.getDay()+6)%7)+(offset*7));
     const we=new Date(ws); we.setDate(ws.getDate()+6); we.setHours(23,59,59,999);
     start=ws; end=we;
-    const isThisWeek=offset===0;
-    mainLabel=isThisWeek?'This week':'Week of '+ws.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-    subLabel=ws.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+we.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    // Main = date range e.g. "31 Mar – 6 Apr 2026"
+    mainLabel=ws.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+we.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    subLabel=offset===0?'This week':'';
+    totalLabel='Spent this week';
   } else if(period==='month'){
     const d=new Date(today.getFullYear(),today.getMonth()+offset,1);
     start=new Date(d.getFullYear(),d.getMonth(),1);
     end=new Date(d.getFullYear(),d.getMonth()+1,0); end.setHours(23,59,59,999);
-    mainLabel=d.toLocaleString('default',{month:'long'});
-    subLabel=d.getFullYear().toString();
+    // Main = "March 2026"
+    mainLabel=d.toLocaleString('default',{month:'long'})+' '+d.getFullYear();
+    subLabel='';
+    totalLabel='Spent this month';
   } else { // year
     const yr=today.getFullYear()+offset;
     start=new Date(yr,0,1); end=new Date(yr,11,31); end.setHours(23,59,59,999);
+    // Main = just the year "2026"
     mainLabel=yr.toString();
-    subLabel=offset===0?'This year':'';
+    subLabel='';
+    totalLabel='Spent this year';
   }
-  return {start,end,mainLabel,subLabel};
+  return {start,end,mainLabel,subLabel,totalLabel};
 }
 
 function filterByRange(start,end){
@@ -474,9 +483,10 @@ function navigatePeriod(dir){
 }
 
 function renderOverview(){
-  const {start,end,mainLabel,subLabel}=getDateRange(activePeriod,periodOffset);
+  const {start,end,mainLabel,subLabel,totalLabel}=getDateRange(activePeriod,periodOffset);
   document.getElementById('period-main-label').textContent=mainLabel;
   document.getElementById('period-sub-label').textContent=subLabel;
+  document.getElementById('total-label').textContent=totalLabel;
 
   const txs=filterByRange(start,end);
   const total=txs.reduce((s,e)=>s+e.amount,0);
@@ -505,56 +515,40 @@ function renderContextCards(period,txs,start,end){
   const lbl2=document.getElementById('card2-label');
   const val2=document.getElementById('card2-val');
   const sub2=document.getElementById('card2-sub');
+  const total=txs.reduce((s,e)=>s+e.amount,0);
 
   if(period==='today'){
-    // Biggest single expense today & number of transactions
     const biggest=txs.length?txs.reduce((a,b)=>a.amount>b.amount?a:b,txs[0]):null;
     lbl1.textContent='Biggest expense';
     val1.textContent=biggest?fmt(biggest.amount):'€0.00';
-    sub1.textContent=biggest?(biggest.store||'—'):'';
+    sub1.textContent=biggest?(biggest.store||biggest.category||'—'):'';
     lbl2.textContent='Transactions';
     val2.textContent=txs.length;
     sub2.textContent='today';
   } else if(period==='week'){
-    // Best day & daily avg
-    const dayMap={};
-    txs.forEach(e=>{dayMap[e.date]=(dayMap[e.date]||0)+e.amount;});
-    const dayAmts=Object.values(dayMap);
-    const best=dayAmts.length?Math.max(...dayAmts):0;
-    const bestDay=dayAmts.length?Object.entries(dayMap).find(([,v])=>v===best):null;
-    lbl1.textContent='Best day';
-    val1.textContent=fmt(best);
-    sub1.textContent=bestDay?new Date(bestDay[0]).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}):'';
+    lbl1.textContent='Transactions';
+    val1.textContent=txs.length;
+    sub1.textContent='this week';
+    lbl2.textContent='Daily avg';
+    val2.textContent=fmt(total/7);
+    sub2.textContent='per day';
+  } else if(period==='month'){
+    lbl1.textContent='Transactions';
+    val1.textContent=txs.length;
+    sub1.textContent='this month';
     const days=Math.round((end-start)/(1000*60*60*24))+1;
-    const total=txs.reduce((s,e)=>s+e.amount,0);
     lbl2.textContent='Daily avg';
     val2.textContent=fmt(days>0?total/days:0);
-    sub2.textContent='this week';
-  } else if(period==='month'){
-    // Best week & daily avg for that month
-    const dayMap={};
-    txs.forEach(e=>{dayMap[e.date]=(dayMap[e.date]||0)+e.amount;});
-    const dayAmts=Object.values(dayMap);
-    const best=dayAmts.length?Math.max(...dayAmts):0;
-    lbl1.textContent='Best day';
-    val1.textContent=fmt(best);
-    sub1.textContent='highest single day';
-    const daysInPeriod=Math.round((end-start)/(1000*60*60*24))+1;
-    const total=txs.reduce((s,e)=>s+e.amount,0);
-    lbl2.textContent='Daily avg';
-    val2.textContent=fmt(daysInPeriod>0?total/daysInPeriod:0);
-    sub2.textContent='this month';
-  } else { // year
+    sub2.textContent='per day';
+  } else {
+    lbl1.textContent='Transactions';
+    val1.textContent=txs.length;
+    sub1.textContent='this year';
     const monthMap={};
     txs.forEach(e=>{const m=e.date.slice(0,7);monthMap[m]=(monthMap[m]||0)+e.amount;});
-    const monthAmts=Object.values(monthMap);
-    const best=monthAmts.length?Math.max(...monthAmts):0;
-    lbl1.textContent='Best month';
-    val1.textContent=fmt(best);
-    sub1.textContent='highest spending month';
-    const total=txs.reduce((s,e)=>s+e.amount,0);
+    const cnt=Object.keys(monthMap).length;
     lbl2.textContent='Monthly avg';
-    val2.textContent=fmt(monthAmts.length?total/monthAmts.length:0);
+    val2.textContent=fmt(cnt?total/cnt:0);
     sub2.textContent='per month';
   }
 }
