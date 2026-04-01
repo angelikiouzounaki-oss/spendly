@@ -280,16 +280,10 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
     </div>
 
 ```
-<!-- Monthly / Weekly spending with tabs -->
 <div class="sec-pad"><div class="section-title">Spending trend</div></div>
 <div class="chart-wrap">
-  <div class="chart-tabs">
-    <button class="chart-tab active" onclick="setTrendTab('monthly',this)">Monthly</button>
-    <button class="chart-tab" onclick="setTrendTab('weekly',this)">Weekly</button>
-  </div>
-  <div id="monthly-wrap" style="position:relative;height:220px;"><canvas id="monthly-chart"></canvas></div>
-  <div id="weekly-wrap" style="position:relative;height:220px;display:none;"><canvas id="weekly-chart"></canvas></div>
-  <div id="trend-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
+  <div style="position:relative;height:220px;"><canvas id="trend-chart"></canvas></div>
+  <div id="trend-x-label" style="text-align:center;font-size:11px;color:#7a8cc0;margin-top:8px;font-weight:600;"></div>
 </div>
 
 <!-- Spend breakdown (pie) -->
@@ -458,7 +452,6 @@ let chartsDate=new Date();
 let selCat='groceries', selStore='', selTag='';
 let pieChart=null, monthlyChart=null, weeklyChart=null;
 let pendingDeleteId=null;
-let activeTrendTab='monthly';
 let chartPeriod='month', chartOffset=0;
 
 // ── SWIPE TO CLOSE (smooth) ──
@@ -813,13 +806,120 @@ function renderCharts(){
   bw.innerHTML=badge?'<span class="period-sub">'+badge+'</span>':'';
   document.getElementById('chart-next-btn').classList.toggle('disabled',chartOffset>=0);
   document.getElementById('chart-prev-btn').classList.toggle('disabled',false);
-  renderPieChart();
   renderTrendChart();
+  renderPieChart();
   renderHBars();
 }
 function monthTxsChart(date){
   const d=date||chartsDate;
   return expenses.filter(e=>{const ed=new Date(e.date);return ed.getMonth()===d.getMonth()&&ed.getFullYear()===d.getFullYear();});
+}
+
+function renderTrendChart(){
+  const {start,end}=getDateRange(chartPeriod,chartOffset);
+  const txs=filterByRange(start,end);
+  let labels=[], fullLabels=[], amounts=[], xLabel='';
+
+  if(chartPeriod==='today'){
+    // Hours of the day 0-23
+    xLabel='Hours of the day';
+    for(let h=0;h<24;h++){
+      const hEnd=new Date(start);hEnd.setHours(h,59,59,999);
+      const hStart=new Date(start);hStart.setHours(h,0,0,0);
+      const total=txs.filter(e=>e.time&&parseInt(e.time.split(':')[0])===h).reduce((s,e)=>s+e.amount,0);
+      labels.push(h%6===0?h+'h':'');
+      fullLabels.push(h+':00 – '+h+':59');
+      amounts.push(parseFloat(total.toFixed(2)));
+    }
+  } else if(chartPeriod==='week'){
+    // Days of the week
+    xLabel='Days of the week';
+    const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const dayFull=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    for(let i=0;i<7;i++){
+      const d=new Date(start);d.setDate(start.getDate()+i);
+      const de=new Date(d);de.setHours(23,59,59,999);
+      amounts.push(parseFloat(filterByRange(d,de).reduce((s,e)=>s+e.amount,0).toFixed(2)));
+      labels.push(dayNames[i]);
+      fullLabels.push(dayFull[i]+' '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}));
+    }
+  } else if(chartPeriod==='month'){
+    // Weeks of the month
+    xLabel='Weeks of the month';
+    const weeks=[];let cur=new Date(start);
+    while(cur<=end){
+      const we=new Date(cur);we.setDate(cur.getDate()+6);
+      if(we>end)we.setTime(end.getTime());
+      weeks.push({s:new Date(cur),e:new Date(we)});
+      cur=new Date(we);cur.setDate(cur.getDate()+1);
+    }
+    weeks.forEach((w,i)=>{
+      amounts.push(parseFloat(filterByRange(w.s,w.e).reduce((s,e)=>s+e.amount,0).toFixed(2)));
+      labels.push('W'+(i+1));
+      fullLabels.push(w.s.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+w.e.toLocaleDateString('en-GB',{day:'numeric',month:'short'}));
+    });
+  } else {
+    // Months of the year
+    xLabel='Months of the year';
+    const yr=start.getFullYear();
+    const mns=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const mnsFull=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    for(let m=0;m<12;m++){
+      const ms=new Date(yr,m,1),me=new Date(yr,m+1,0);me.setHours(23,59,59,999);
+      amounts.push(parseFloat(filterByRange(ms,me).reduce((s,e)=>s+e.amount,0).toFixed(2)));
+      labels.push(mns[m]);
+      fullLabels.push(mnsFull[m]+' '+yr);
+    }
+  }
+
+  // Destroy old chart
+  if(window.spendlyTrendChart) window.spendlyTrendChart.destroy();
+
+  const ctx=document.getElementById('trend-chart').getContext('2d');
+  window.spendlyTrendChart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        data:amounts,
+        borderColor:'#2d5be3',
+        backgroundColor:'rgba(45,91,227,0.08)',
+        pointBackgroundColor:'#2d5be3',
+        pointBorderColor:'#ffffff',
+        pointBorderWidth:2,
+        pointRadius:5,
+        pointHoverRadius:7,
+        tension:0.35,
+        fill:true,
+        borderWidth:2.5
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{
+          title:ctx=>fullLabels[ctx[0].dataIndex]||labels[ctx[0].dataIndex],
+          label:ctx=>' '+fmt(ctx.parsed.y)
+        }}
+      },
+      scales:{
+        y:{
+          beginAtZero:true,
+          grid:{color:'#eef2fd'},
+          ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}
+        },
+        x:{
+          grid:{display:false},
+          ticks:{color:'#7a8cc0',font:{size:10,weight:'600'},maxRotation:0}
+        }
+      }
+    }
+  });
+
+  const xl=document.getElementById('trend-x-label');
+  if(xl) xl.textContent=xLabel;
 }
 
 function renderPieChart(){
@@ -840,125 +940,6 @@ function renderPieChart(){
   pieLeg.innerHTML=used.map(c=>`<span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:${c.color};display:inline-block;"></span>${c.label} ${fmt(c.amount)}</span>`).join('');
 }
 
-function renderTrendChart(){
-  const {start,end}=getDateRange(chartPeriod,chartOffset);
-  if(activeTrendTab==='monthly') renderMonthlyChart(start,end);
-  else renderWeeklyChart(start,end);
-}
-
-function setTrendTab(tab,btn){
-  activeTrendTab=tab;
-  document.querySelectorAll('.chart-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('monthly-wrap').style.display=tab==='monthly'?'block':'none';
-  document.getElementById('weekly-wrap').style.display=tab==='weekly'?'block':'none';
-  renderTrendChart();
-}
-
-function renderMonthlyChart(start,end){
-  const months=[],amounts=[],fullLabels=[];
-  // Show 6 units based on chartPeriod
-  if(chartPeriod==='today'){
-    for(let i=5;i>=0;i--){
-      const d=new Date(start);d.setDate(d.getDate()-i);
-      const de=new Date(d);de.setHours(23,59,59,999);
-      months.push(d.toLocaleDateString('en-GB',{weekday:'short'}));
-      fullLabels.push(d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'}));
-      amounts.push(parseFloat(filterByRange(d,de).reduce((s,e)=>s+e.amount,0).toFixed(2)));
-    }
-  } else if(chartPeriod==='week'){
-    for(let i=5;i>=0;i--){
-      const ws=new Date(start);ws.setDate(start.getDate()-(i*7));
-      const we=new Date(ws);we.setDate(ws.getDate()+6);we.setHours(23,59,59,999);
-      months.push(ws.toLocaleDateString('en-GB',{day:'numeric',month:'short'}));
-      fullLabels.push(ws.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+we.toLocaleDateString('en-GB',{day:'numeric',month:'short'}));
-      amounts.push(parseFloat(filterByRange(ws,we).reduce((s,e)=>s+e.amount,0).toFixed(2)));
-    }
-  } else if(chartPeriod==='month'){
-    for(let i=5;i>=0;i--){
-      const d=new Date(start.getFullYear(),start.getMonth()-i,1);
-      const de=new Date(d.getFullYear(),d.getMonth()+1,0);de.setHours(23,59,59,999);
-      months.push(d.toLocaleString('default',{month:'short'}));
-      fullLabels.push(d.toLocaleString('default',{month:'long'})+' '+d.getFullYear());
-      amounts.push(parseFloat(filterByRange(d,de).reduce((s,e)=>s+e.amount,0).toFixed(2)));
-    }
-  } else {
-    for(let i=5;i>=0;i--){
-      const yr=start.getFullYear()-i;
-      const ys=new Date(yr,0,1),ye=new Date(yr,11,31);ye.setHours(23,59,59,999);
-      months.push(yr.toString());fullLabels.push(yr.toString());
-      amounts.push(parseFloat(filterByRange(ys,ye).reduce((s,e)=>s+e.amount,0).toFixed(2)));
-    }
-  }
-  if(monthlyChart)monthlyChart.destroy();
-  monthlyChart=new Chart(document.getElementById('monthly-chart').getContext('2d'),{
-    type:'line',
-    data:{labels:months,datasets:[{data:amounts,borderColor:'#2d5be3',backgroundColor:'rgba(45,91,227,0.08)',pointBackgroundColor:amounts.map((_,i)=>i===highlightIdx?'#2d5be3':'#a8bdf5'),pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,pointHoverRadius:7,tension:0.35,fill:true,borderWidth:2.5}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>fullLabels[ctx[0].dataIndex],label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{color:'#eef2fd'},ticks:{color:'#7a8cc0',font:{size:10,weight:'600'},maxRotation:20}}}}
-  });
-  document.getElementById('trend-legend').innerHTML=`<span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:#2d5be3;display:inline-block;"></span>Current month</span><span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:#c2d0f7;display:inline-block;"></span>Previous</span>`;
-}
-
-function renderWeeklyChart(start,end){
-  const labels=[],amounts=[],fullLabels=[];
-  if(chartPeriod==='today'){
-    // Hours of the day
-    const blocks=['00–06','06–12','12–18','18–24'];
-    const amts=[0,0,0,0];
-    filterByRange(start,end).forEach(e=>{if(e.time){const h=parseInt(e.time.split(':')[0]);amts[Math.min(3,Math.floor(h/6))]+=e.amount;}});
-    if(weeklyChart)weeklyChart.destroy();
-    weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{type:'line',data:{labels:blocks,datasets:[{data:amts,borderColor:'#2d5be3',backgroundColor:'rgba(45,91,227,0.08)',pointBackgroundColor:'#2d5be3',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,tension:0.35,fill:true,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{color:'#eef2fd'},ticks:{color:'#7a8cc0',font:{size:11}}}}}});
-    document.getElementById('trend-legend').innerHTML='';
-    return;
-  } else if(chartPeriod==='week'){
-    // Days of the current week
-    const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const dayFull=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-    const amts=[0,0,0,0,0,0,0];
-    for(let i=0;i<7;i++){const wd=new Date(start);wd.setDate(start.getDate()+i);filterByRange(start,end).forEach(e=>{const d=new Date(e.date);d.setHours(12);if(d.toDateString()===wd.toDateString())amts[i]+=e.amount;});}
-    if(weeklyChart)weeklyChart.destroy();
-    weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{type:'line',data:{labels:days,datasets:[{data:amts,borderColor:'#2d5be3',backgroundColor:'rgba(45,91,227,0.08)',pointBackgroundColor:amts.map((_,i)=>i===(new Date().getDay()+6)%7&&chartOffset===0?'#2d5be3':'#a8bdf5'),pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,tension:0.35,fill:true,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>dayFull[ctx[0].dataIndex],label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{color:'#eef2fd'},ticks:{color:'#7a8cc0',font:{size:11}}}}}});
-    document.getElementById('trend-legend').innerHTML='';
-    return;
-  } else if(chartPeriod==='month'){
-    // Weeks of the selected month
-    const weeks=[];let cur=new Date(start);
-    while(cur<=end){const we=new Date(cur);we.setDate(cur.getDate()+6);if(we>end)we.setTime(end.getTime());weeks.push({s:new Date(cur),e:new Date(we)});cur.setDate(cur.getDate()+7);}
-    const amts=weeks.map(w=>filterByRange(w.s,w.e).reduce((s,e)=>s+e.amount,0));
-    if(weeklyChart)weeklyChart.destroy();
-    weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{type:'line',data:{labels:weeks.map((_,i)=>'W'+(i+1)),datasets:[{data:amts,borderColor:'#2d5be3',backgroundColor:'rgba(45,91,227,0.08)',pointBackgroundColor:'#2d5be3',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,tension:0.35,fill:true,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>weeks[ctx[0].dataIndex].s.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+weeks[ctx[0].dataIndex].e.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{color:'#eef2fd'},ticks:{color:'#7a8cc0',font:{size:11}}}}}});
-    document.getElementById('trend-legend').innerHTML='';
-    return;
-  }
-  // Year: show months of the selected year
-  const yr=start.getFullYear();
-  const mns=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const mnsF=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  for(let m=0;m<12;m++){
-    const ms=new Date(yr,m,1),me=new Date(yr,m+1,0);me.setHours(23,59,59,999);
-    labels.push(mns[m]);fullLabels.push(mnsF[m]+' '+yr);
-    amounts.push(parseFloat(filterByRange(ms,me).reduce((s,e)=>s+e.amount,0).toFixed(2)));
-  }
-  // OLD weekly loop kept for year view only
-  const today_ref = new Date(); // placeholder
-  for(let w=0;w<0;w--){
-    const ws=new Date(today_ref);ws.setDate(today_ref.getDate()-((today_ref.getDay()+6)%7)-(w*7));
-    const we=new Date(ws);we.setDate(ws.getDate()+6);
-    const total=expenses.filter(e=>{const d=new Date(e.date);d.setHours(12);return d>=ws&&d<=we;}).reduce((s,e)=>s+e.amount,0);
-    const s=ws.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-    const en=we.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-    labels.push(w===0?'This week':s);
-    fullLabels.push(`${s} – ${en}`);
-    amounts.push(parseFloat(total.toFixed(2)));
-  }
-  if(weeklyChart)weeklyChart.destroy();
-  weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{
-    type:'bar',
-    data:{labels,datasets:[{data:amounts,backgroundColor:amounts.map((_,i)=>i===5?'#2d5be3':'#c2d0f7'),borderColor:amounts.map((_,i)=>i===5?'#1e44c8':'#a8bdf5'),borderWidth:2,borderRadius:8,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>fullLabels[ctx[0].dataIndex],label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#7a8cc0',font:{size:10,weight:'600'},maxRotation:20}}}}
-  });
-  document.getElementById('trend-legend').innerHTML=`<span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:#2d5be3;display:inline-block;"></span>This week</span><span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:#c2d0f7;display:inline-block;"></span>Previous weeks</span>`;
-}
 
 function renderHBars(){
   const {start:hs,end:he}=getDateRange(chartPeriod,chartOffset);
