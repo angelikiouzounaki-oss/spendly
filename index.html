@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -9,263 +10,229 @@
 <title>Spendly</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box !important; margin: 0 !important; padding: 0 !important; }
-  :root {
-    --border: #c2d0f7;
-    --border2: #a8bdf5;
-    --text: #0f1f5c;
-    --text2: #3a4e9a;
-    --text3: #7a8cc0;
-    --accent: #2d5be3;
-    --accent-dark: #1e44c8;
-    --accent-bg: #eef2fd;
-    --accent-light: #dce6fc;
-    --radius: 14px;
-    --radius-sm: 8px;
-  }
-  html, body {
-    background: #ffffff !important;
-    font-family: -apple-system, 'Helvetica Neue', sans-serif !important;
-    color: #0f1f5c !important;
-    min-height: 100vh !important;
-    -webkit-font-smoothing: antialiased;
-  }
-  #app { max-width: 430px !important; margin: 0 auto !important; padding-bottom: 110px !important; }
+*, *::before, *::after { box-sizing: border-box !important; margin: 0 !important; padding: 0 !important; }
+:root {
+  --border: #c2d0f7; --border2: #a8bdf5;
+  --text: #0f1f5c; --text2: #3a4e9a; --text3: #7a8cc0;
+  --accent: #2d5be3; --accent-dark: #1e44c8;
+  --accent-bg: #eef2fd; --accent-light: #dce6fc;
+}
+html, body { background: #fff !important; font-family: -apple-system,'Helvetica Neue',sans-serif !important; color: #0f1f5c !important; min-height: 100vh !important; -webkit-font-smoothing: antialiased; }
+#app { max-width: 430px !important; margin: 0 auto !important; padding-bottom: 120px !important; }
+button { -webkit-appearance: none !important; appearance: none !important; font-family: inherit !important; }
 
-  /* ── ALL BUTTONS RESET — no browser defaults ── */
-  button {
-    -webkit-appearance: none !important;
-    appearance: none !important;
-    font-family: -apple-system, 'Helvetica Neue', sans-serif !important;
-  }
+/* ── NAV ── */
+.nav { display: flex !important; position: fixed !important; bottom: 0 !important; left: 50% !important; transform: translateX(-50%) !important; width: 100% !important; max-width: 430px !important; background: #fff !important; border-top: 2px solid #c2d0f7 !important; padding: 10px 8px 24px !important; z-index: 100 !important; gap: 6px !important; }
+.nav-btn { flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; gap: 4px !important; background: #dce6fc !important; border: 2px solid #a8bdf5 !important; border-radius: 12px !important; cursor: pointer !important; color: #2d5be3 !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: 0.04em !important; padding: 8px 4px 6px !important; }
+.nav-btn.active { background: #2d5be3 !important; border-color: #1e44c8 !important; color: #fff !important; }
+.nav-icon { font-size: 18px !important; line-height: 1 !important; }
 
-  /* ── NAV ── */
-  .nav {
-    display: flex !important;
-    position: fixed !important; bottom: 0 !important; left: 50% !important; transform: translateX(-50%) !important;
-    width: 100% !important; max-width: 430px !important;
-    background: #ffffff !important;
-    border-top: 2px solid #c2d0f7 !important;
-    padding: 10px 8px 24px !important;
-    z-index: 100 !important;
-    gap: 6px !important;
-  }
-  .nav-btn {
-    flex: 1 !important;
-    display: flex !important; flex-direction: column !important; align-items: center !important; gap: 4px !important;
-    background: #dce6fc !important;
-    border: 2px solid #a8bdf5 !important;
-    border-radius: 12px !important;
-    cursor: pointer !important;
-    color: #2d5be3 !important;
-    font-size: 10px !important; font-weight: 700 !important; letter-spacing: 0.04em !important;
-    padding: 8px 4px 6px !important;
-  }
-  .nav-btn.active {
-    background: #2d5be3 !important;
-    border-color: #1e44c8 !important;
-    color: #ffffff !important;
-  }
-  .nav-icon { font-size: 18px !important; line-height: 1 !important; }
+/* ── ADD BTN ── */
+.add-btn { position: fixed !important; bottom: 86px !important; left: 50% !important; transform: translateX(-50%) !important; width: calc(100% - 16px) !important; max-width: 414px !important; background: #dce6fc !important; border: 2px solid #a8bdf5 !important; border-radius: 12px !important; color: #2d5be3 !important; font-size: 14px !important; font-weight: 700 !important; cursor: pointer !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; padding: 12px 0 !important; z-index: 101 !important; }
+.add-btn:active { background: #2d5be3 !important; color: #fff !important; }
 
-  /* ── ADD BTN (full width bar) ── */
-  .add-btn {
-    position: fixed !important; bottom: 86px !important; left: 50% !important; transform: translateX(-50%) !important;
-    width: calc(100% - 16px) !important; max-width: 414px !important;
-    background: #dce6fc !important;
-    border: 2px solid #a8bdf5 !important;
-    border-radius: 12px !important;
-    color: #2d5be3 !important;
-    font-size: 14px !important; font-weight: 700 !important;
-    cursor: pointer !important;
-    display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important;
-    padding: 12px 0 !important;
-    z-index: 101 !important;
-  }
-  .add-btn:active { background: #2d5be3 !important; color: #ffffff !important; }
+/* ── HEADER ── */
+.header { padding: 12px 20px 0 !important; }
+.header-inner { background: #2d5be3 !important; border-radius: 14px !important; padding: 14px 16px 14px !important; }
 
-  /* ── HEADER ── */
-  .header { padding: 12px 20px 0 !important; margin-bottom: 0 !important; }
-  .header-inner { margin-bottom: 0 !important; }
-  #page-tx .header, #page-charts .header { padding-bottom: 24px !important; }
-  .header-inner {
-    background: #2d5be3 !important;
-    border-radius: 14px !important;
-    padding: 16px 18px 14px !important;
-  }
-  .month-row { display: flex !important; align-items: center !important; justify-content: space-between !important; margin-bottom: 2px !important; }
-  .month-btn {
-    background: #ffffff !important;
-    border: 2px solid #dce6fc !important;
-    border-radius: 50% !important; width: 32px !important; height: 32px !important;
-    cursor: pointer !important; color: #2d5be3 !important;
-    font-size: 16px !important; font-weight: 700 !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
-  }
-  .month-btn:active { background: #dce6fc !important; }
-  .month-label { font-size: 22px !important; font-weight: 800 !important; color: #ffffff !important; }
-  .year-chip { font-size: 12px !important; color: rgba(255,255,255,0.7) !important; font-weight: 500 !important; }
+/* period tabs inside header */
+.period-tabs { display: flex !important; gap: 5px !important; margin-bottom: 12px !important; }
+.period-tab { flex: 1 !important; padding: 6px 4px !important; border-radius: 8px !important; font-size: 11px !important; font-weight: 700 !important; border: 1.5px solid rgba(255,255,255,0.3) !important; background: rgba(255,255,255,0.15) !important; color: rgba(255,255,255,0.75) !important; cursor: pointer !important; text-align: center !important; letter-spacing: 0.03em !important; }
+.period-tab.active { background: #fff !important; border-color: #fff !important; color: #2d5be3 !important; }
 
-  /* ── SUMMARY ── */
-  .summary { padding: 14px 20px 16px !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
-  .card { background: #ffffff !important; border: 2px solid #c2d0f7 !important; border-radius: 14px !important; padding: 14px 16px !important; }
-  .card-label { font-size: 11px !important; color: #7a8cc0 !important; letter-spacing: 0.06em !important; text-transform: uppercase !important; margin-bottom: 4px !important; font-weight: 600 !important; }
-  .card-value { font-size: 20px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; color: #0f1f5c !important; }
-  .card-sub { font-size: 11px !important; color: #3a4e9a !important; margin-top: 2px !important; }
-  .card.accent { background: #2d5be3 !important; border-color: #1e44c8 !important; grid-column: 1/-1 !important; }
-  .card.accent .card-label { color: rgba(255,255,255,0.75) !important; }
-  .card.accent .card-value { color: #ffffff !important; font-size: 28px !important; }
-  .card.accent .card-sub { color: rgba(255,255,255,0.65) !important; }
-  .card.small-blue { background: #eef2fd !important; border-color: #c2d0f7 !important; }
-  .card.small-blue .card-value { color: #2d5be3 !important; font-size: 18px !important; }
+.period-nav { display: flex !important; align-items: center !important; justify-content: space-between !important; }
+.period-btn { background: rgba(255,255,255,0.2) !important; border: 1.5px solid rgba(255,255,255,0.4) !important; border-radius: 50% !important; width: 30px !important; height: 30px !important; cursor: pointer !important; color: #fff !important; font-size: 16px !important; font-weight: 700 !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+.period-btn:active { background: rgba(255,255,255,0.4) !important; }
+.period-label-wrap { flex: 1 !important; text-align: center !important; }
+.period-main { font-size: 20px !important; font-weight: 800 !important; color: #fff !important; line-height: 1.1 !important; }
+.period-sub { font-size: 12px !important; color: rgba(255,255,255,0.7) !important; font-weight: 500 !important; margin-top: 1px !important; }
 
-  /* ── WEEK ── */
-  .week-section { background: #eef2fd !important; border: 2px solid #c2d0f7 !important; border-radius: 14px !important; margin: 0 20px 16px !important; padding: 16px 16px 14px !important; }
-  .section-title { font-size: 12px !important; font-weight: 800 !important; color: #3a4e9a !important; letter-spacing: 0.07em !important; text-transform: uppercase !important; margin-bottom: 10px !important; }
-  .week-bar-wrap { display: flex !important; align-items: flex-end !important; gap: 5px !important; height: 60px !important; }
-  .week-bar-col { flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-end !important; height: 100% !important; }
-  .week-bar { width: 100% !important; border-radius: 4px 4px 0 0 !important; min-height: 3px !important; }
-  .week-day { font-size: 10px !important; font-weight: 600 !important; color: #7a8cc0 !important; margin-top: 5px !important; }
-  .week-day.today { color: #2d5be3 !important; font-weight: 800 !important; }
+/* ── SUMMARY ── */
+.summary { padding: 14px 20px 16px !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+.card { background: #fff !important; border: 2px solid #c2d0f7 !important; border-radius: 14px !important; padding: 14px 16px !important; }
+.card-label { font-size: 11px !important; color: #7a8cc0 !important; letter-spacing: 0.06em !important; text-transform: uppercase !important; margin-bottom: 4px !important; font-weight: 600 !important; }
+.card-value { font-size: 20px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; color: #0f1f5c !important; }
+.card-sub { font-size: 11px !important; color: #3a4e9a !important; margin-top: 2px !important; }
+.card.accent { background: #2d5be3 !important; border-color: #1e44c8 !important; grid-column: 1/-1 !important; }
+.card.accent .card-label { color: rgba(255,255,255,0.75) !important; }
+.card.accent .card-value { color: #fff !important; font-size: 28px !important; }
+.card.accent .card-sub { color: rgba(255,255,255,0.65) !important; }
+.card.small-blue { background: #eef2fd !important; border-color: #c2d0f7 !important; }
+.card.small-blue .card-value { color: #2d5be3 !important; font-size: 18px !important; }
 
-  /* ── BLOCKS ── */
-  .block { background: #ffffff !important; border: 2px solid #c2d0f7 !important; border-radius: 14px !important; padding: 4px 14px !important; margin: 0 20px 16px !important; }
-  .cat-item { display: flex !important; align-items: center !important; gap: 12px !important; padding: 10px 0 !important; border-bottom: 1.5px solid #c2d0f7 !important; }
-  .cat-item:last-child { border-bottom: none !important; }
-  .cat-icon { width: 36px !important; height: 36px !important; border-radius: 10px !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 17px !important; flex-shrink: 0 !important; }
-  .cat-info { flex: 1 !important; min-width: 0 !important; }
-  .cat-name { font-size: 13px !important; font-weight: 600 !important; color: #0f1f5c !important; }
-  .cat-bar-wrap { height: 4px !important; background: #eef2fd !important; border-radius: 2px !important; margin-top: 4px !important; }
-  .cat-bar { height: 4px !important; border-radius: 2px !important; }
-  .cat-amount { font-size: 13px !important; font-weight: 700 !important; color: #0f1f5c !important; text-align: right !important; }
-  .cat-pct { font-size: 11px !important; color: #7a8cc0 !important; text-align: right !important; margin-top: 2px !important; }
+/* ── WEEK BARS ── */
+.week-section { background: #eef2fd !important; border: 2px solid #c2d0f7 !important; border-radius: 14px !important; margin: 0 20px 16px !important; padding: 16px 16px 14px !important; }
+.section-title { font-size: 12px !important; font-weight: 800 !important; color: #3a4e9a !important; letter-spacing: 0.07em !important; text-transform: uppercase !important; margin-bottom: 10px !important; }
+.week-bar-wrap { display: flex !important; align-items: flex-end !important; gap: 5px !important; height: 70px !important; }
+.week-bar-col { flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-end !important; height: 100% !important; }
+.week-bar { width: 100% !important; border-radius: 4px 4px 0 0 !important; min-height: 3px !important; }
+.week-amt-label { font-size: 8px !important; color: #3a4e9a !important; margin-bottom: 2px !important; font-weight: 600 !important; text-align: center !important; }
+.week-day-label { font-size: 9px !important; font-weight: 600 !important; color: #7a8cc0 !important; margin-top: 4px !important; text-align: center !important; }
+.week-day-label.today { color: #2d5be3 !important; font-weight: 800 !important; }
+.today-badge { display: inline-block !important; background: #2d5be3 !important; color: #fff !important; font-size: 9px !important; font-weight: 700 !important; border-radius: 6px !important; padding: 1px 5px !important; margin-bottom: 3px !important; }
 
-  /* ── TX ITEMS ── */
-  .tx-item { display: flex !important; align-items: center !important; gap: 12px !important; padding: 10px 0 !important; border-bottom: 1.5px solid #c2d0f7 !important; }
-  .tx-item:last-child { border-bottom: none !important; }
-  .tx-icon { width: 38px !important; height: 38px !important; border-radius: 10px !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 17px !important; flex-shrink: 0 !important; }
-  .tx-info { flex: 1 !important; min-width: 0 !important; }
-  .tx-store { font-size: 13px !important; font-weight: 600 !important; color: #0f1f5c !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-  .tx-meta { font-size: 11px !important; color: #7a8cc0 !important; margin-top: 1px !important; }
-  .tx-time { font-size: 10px !important; color: #7a8cc0 !important; margin-top: 2px !important; font-style: italic !important; }
-  .tx-amount { font-size: 13px !important; font-weight: 700 !important; color: #0f1f5c !important; }
-  .delete-btn { background: none !important; border: none !important; color: #7a8cc0 !important; font-size: 18px !important; cursor: pointer !important; padding: 4px !important; }
-  .date-label { font-size: 11px !important; font-weight: 700 !important; color: #3a4e9a !important; letter-spacing: 0.06em !important; text-transform: uppercase !important; padding: 12px 0 4px !important; border-bottom: 1.5px solid #c2d0f7 !important; margin-bottom: 2px !important; }
+/* ── BLOCKS ── */
+.block { background: #fff !important; border: 2px solid #c2d0f7 !important; border-radius: 14px !important; padding: 4px 14px !important; margin: 0 20px 16px !important; }
+.cat-item { display: flex !important; align-items: center !important; gap: 12px !important; padding: 10px 0 !important; border-bottom: 1.5px solid #c2d0f7 !important; }
+.cat-item:last-child { border-bottom: none !important; }
+.cat-icon { width: 36px !important; height: 36px !important; border-radius: 10px !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 17px !important; flex-shrink: 0 !important; }
+.cat-info { flex: 1 !important; min-width: 0 !important; }
+.cat-name { font-size: 13px !important; font-weight: 600 !important; color: #0f1f5c !important; }
+.cat-bar-wrap { height: 4px !important; background: #eef2fd !important; border-radius: 2px !important; margin-top: 4px !important; }
+.cat-bar { height: 4px !important; border-radius: 2px !important; }
+.cat-amount { font-size: 13px !important; font-weight: 700 !important; color: #0f1f5c !important; text-align: right !important; }
+.cat-pct { font-size: 11px !important; color: #7a8cc0 !important; text-align: right !important; margin-top: 2px !important; }
 
-  /* ── EXPORT BTN ── */
-  .export-bar {
-    display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important;
-    margin: 0 20px 12px !important; padding: 12px !important;
-    background: #dce6fc !important;
-    border: 2px solid #a8bdf5 !important;
-    border-radius: 12px !important;
-    cursor: pointer !important; color: #2d5be3 !important;
-    font-size: 14px !important; font-weight: 700 !important;
-    width: calc(100% - 40px) !important;
-  }
-  .export-bar:active { background: #2d5be3 !important; color: #ffffff !important; }
+/* ── TX ITEMS ── */
+.tx-item { display: flex !important; align-items: center !important; gap: 12px !important; padding: 10px 0 !important; border-bottom: 1.5px solid #c2d0f7 !important; }
+.tx-item:last-child { border-bottom: none !important; }
+.tx-icon { width: 38px !important; height: 38px !important; border-radius: 10px !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 17px !important; flex-shrink: 0 !important; }
+.tx-info { flex: 1 !important; min-width: 0 !important; }
+.tx-store { font-size: 13px !important; font-weight: 600 !important; color: #0f1f5c !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+.tx-meta { font-size: 11px !important; color: #7a8cc0 !important; margin-top: 1px !important; }
+.tx-time { font-size: 10px !important; color: #7a8cc0 !important; margin-top: 2px !important; font-style: italic !important; }
+.tx-amount { font-size: 13px !important; font-weight: 700 !important; color: #0f1f5c !important; }
+.delete-btn { background: #fdecea !important; border: 1.5px solid #f5c1c1 !important; color: #c0392b !important; font-size: 11px !important; font-weight: 700 !important; border-radius: 8px !important; cursor: pointer !important; padding: 3px 8px !important; margin-top: 3px !important; }
+.date-label { font-size: 11px !important; font-weight: 700 !important; color: #3a4e9a !important; letter-spacing: 0.06em !important; text-transform: uppercase !important; padding: 12px 0 4px !important; border-bottom: 1.5px solid #c2d0f7 !important; margin-bottom: 2px !important; }
 
-  /* ── CHART WRAP ── */
-  .chart-wrap { background: #ffffff !important; border: 2px solid #c2d0f7 !important; border-radius: 14px !important; padding: 16px !important; margin: 0 20px 16px !important; }
+/* ── EXPORT BAR ── */
+.export-bar { display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; margin: 0 20px 12px !important; padding: 12px !important; background: #dce6fc !important; border: 2px solid #a8bdf5 !important; border-radius: 12px !important; cursor: pointer !important; color: #2d5be3 !important; font-size: 14px !important; font-weight: 700 !important; width: calc(100% - 40px) !important; }
+.export-bar:active { background: #2d5be3 !important; color: #fff !important; }
 
-  /* ── CHART TABS ── */
-  .chart-tabs { display: flex !important; gap: 8px !important; margin-bottom: 14px !important; }
-  .chart-tab {
-    flex: 1 !important; padding: 9px 10px !important; border-radius: 12px !important;
-    font-size: 12px !important; font-weight: 700 !important;
-    border: 2px solid #a8bdf5 !important;
-    background: #dce6fc !important;
-    cursor: pointer !important; color: #2d5be3 !important;
-    text-align: center !important; letter-spacing: 0.03em !important;
-  }
-  .chart-tab.active { background: #2d5be3 !important; border-color: #1e44c8 !important; color: #ffffff !important; }
+/* ── CHART ── */
+.chart-wrap { background: #fff !important; border: 2px solid #c2d0f7 !important; border-radius: 14px !important; padding: 16px !important; margin: 0 20px 16px !important; }
 
-  /* ── MODAL ── */
-  .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(15,31,92,0.35) !important; z-index: 200 !important; align-items: flex-end !important; justify-content: center !important; }
-  .modal { background: #ffffff !important; border-radius: 24px 24px 0 0 !important; width: 100% !important; max-width: 430px !important; padding: 20px 20px 40px !important; max-height: 90vh !important; overflow-y: auto !important; }
-  .modal-handle { width: 40px !important; height: 4px !important; background: #a8bdf5 !important; border-radius: 2px !important; margin: 0 auto 20px !important; }
-  .modal-title { font-size: 17px !important; font-weight: 800 !important; color: #0f1f5c !important; margin-bottom: 20px !important; text-align: center !important; }
-  .form-row { margin-bottom: 14px !important; }
-  .form-label { font-size: 11px !important; font-weight: 800 !important; color: #3a4e9a !important; margin-bottom: 6px !important; letter-spacing: 0.06em !important; text-transform: uppercase !important; display: block !important; }
-  .form-input { width: 100% !important; background: #eef2fd !important; border: 2px solid #c2d0f7 !important; border-radius: 8px !important; padding: 11px 14px !important; font-size: 15px !important; color: #0f1f5c !important; outline: none !important; -webkit-appearance: none !important; }
-  .form-input:focus { border-color: #2d5be3 !important; background: #dce6fc !important; }
-  .amount-input { font-size: 28px !important; font-weight: 800 !important; text-align: center !important; color: #2d5be3 !important; }
-  .cat-grid { display: grid !important; grid-template-columns: repeat(3,1fr) !important; gap: 8px !important; }
-  .cat-choice { background: #eef2fd !important; border: 2px solid #c2d0f7 !important; border-radius: 8px !important; padding: 10px 6px !important; text-align: center !important; cursor: pointer !important; }
-  .cat-choice.selected { border-color: #2d5be3 !important; background: #dce6fc !important; }
-  .cat-choice-icon { font-size: 20px !important; }
-  .cat-choice-label { font-size: 10px !important; color: #3a4e9a !important; margin-top: 3px !important; line-height: 1.2 !important; font-weight: 600 !important; }
-  .pills-wrap { display: flex !important; flex-wrap: wrap !important; gap: 7px !important; }
-  .pill { padding: 6px 13px !important; border-radius: 20px !important; font-size: 12px !important; font-weight: 600 !important; border: 2px solid #c2d0f7 !important; background: #dce6fc !important; cursor: pointer !important; color: #2d5be3 !important; white-space: nowrap !important; }
-  .pill.selected { background: #2d5be3 !important; border-color: #1e44c8 !important; color: #ffffff !important; }
-  .pill.add-pill { border-style: dashed !important; color: #7a8cc0 !important; background: #ffffff !important; }
-  .tag-pill { padding: 5px 11px !important; border-radius: 20px !important; font-size: 12px !important; font-weight: 600 !important; border: 2px solid #c2d0f7 !important; background: #dce6fc !important; cursor: pointer !important; color: #3a4e9a !important; }
-  .tag-pill.selected { background: #2d5be3 !important; border-color: #1e44c8 !important; color: #ffffff !important; }
-  .custom-input-row { display: flex !important; gap: 8px !important; margin-top: 8px !important; }
-  .custom-input-row input { flex: 1 !important; }
-  .custom-input-row button { background: #2d5be3 !important; color: #ffffff !important; border: none !important; border-radius: 8px !important; padding: 0 16px !important; font-size: 13px !important; font-weight: 700 !important; cursor: pointer !important; height: 44px !important; }
-  .submit-btn { width: 100% !important; background: #2d5be3 !important; color: #ffffff !important; border: 2px solid #1e44c8 !important; border-radius: 12px !important; padding: 15px !important; font-size: 16px !important; font-weight: 800 !important; cursor: pointer !important; margin-top: 10px !important; }
+/* ── MODALS ── */
+.modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(15,31,92,0.35) !important; z-index: 200 !important; align-items: flex-end !important; justify-content: center !important; }
+.modal { background: #fff !important; border-radius: 24px 24px 0 0 !important; width: 100% !important; max-width: 430px !important; padding: 20px 20px 40px !important; max-height: 92vh !important; overflow-y: auto !important; }
+.modal-handle { width: 40px !important; height: 4px !important; background: #a8bdf5 !important; border-radius: 2px !important; margin: 0 auto 20px !important; }
+.modal-title { font-size: 17px !important; font-weight: 800 !important; color: #0f1f5c !important; margin-bottom: 20px !important; text-align: center !important; }
+.form-row { margin-bottom: 14px !important; }
+.form-label { font-size: 11px !important; font-weight: 800 !important; color: #3a4e9a !important; margin-bottom: 6px !important; letter-spacing: 0.06em !important; text-transform: uppercase !important; display: block !important; }
+.form-input { width: 100% !important; background: #eef2fd !important; border: 2px solid #c2d0f7 !important; border-radius: 8px !important; padding: 11px 14px !important; font-size: 15px !important; color: #0f1f5c !important; outline: none !important; -webkit-appearance: none !important; }
+.form-input:focus { border-color: #2d5be3 !important; background: #dce6fc !important; }
+.amount-input { font-size: 28px !important; font-weight: 800 !important; text-align: center !important; color: #2d5be3 !important; }
+.cat-grid { display: grid !important; grid-template-columns: repeat(3,1fr) !important; gap: 8px !important; }
+.cat-choice { background: #eef2fd !important; border: 2px solid #c2d0f7 !important; border-radius: 8px !important; padding: 10px 6px !important; text-align: center !important; cursor: pointer !important; }
+.cat-choice.selected { border-color: #2d5be3 !important; background: #dce6fc !important; }
+.cat-choice-icon { font-size: 20px !important; }
+.cat-choice-label { font-size: 10px !important; color: #3a4e9a !important; margin-top: 3px !important; line-height: 1.2 !important; font-weight: 600 !important; }
+.pills-wrap { display: flex !important; flex-wrap: wrap !important; gap: 7px !important; }
+.pill { padding: 6px 13px !important; border-radius: 20px !important; font-size: 12px !important; font-weight: 600 !important; border: 2px solid #c2d0f7 !important; background: #dce6fc !important; cursor: pointer !important; color: #2d5be3 !important; white-space: nowrap !important; }
+.pill.selected { background: #2d5be3 !important; border-color: #1e44c8 !important; color: #fff !important; }
+.pill.add-pill { border-style: dashed !important; color: #7a8cc0 !important; background: #fff !important; }
+.tag-pill { padding: 5px 11px !important; border-radius: 20px !important; font-size: 12px !important; font-weight: 600 !important; border: 2px solid #c2d0f7 !important; background: #dce6fc !important; cursor: pointer !important; color: #3a4e9a !important; }
+.tag-pill.selected { background: #2d5be3 !important; border-color: #1e44c8 !important; color: #fff !important; }
+.custom-input-row { display: flex !important; gap: 8px !important; margin-top: 8px !important; }
+.custom-input-row input { flex: 1 !important; }
+.custom-input-row button { background: #2d5be3 !important; color: #fff !important; border: none !important; border-radius: 8px !important; padding: 0 16px !important; font-size: 13px !important; font-weight: 700 !important; cursor: pointer !important; height: 44px !important; }
+.submit-btn { width: 100% !important; background: #2d5be3 !important; color: #fff !important; border: 2px solid #1e44c8 !important; border-radius: 12px !important; padding: 15px !important; font-size: 16px !important; font-weight: 800 !important; cursor: pointer !important; margin-top: 10px !important; }
 
-  /* ── EXPORT MODAL ── */
-  .export-modal { background: #ffffff !important; border-radius: 24px 24px 0 0 !important; width: 100% !important; max-width: 430px !important; padding: 20px 20px 40px !important; }
-  .export-option { display: flex !important; align-items: center !important; gap: 12px !important; padding: 14px !important; background: #eef2fd !important; border: 2px solid #c2d0f7 !important; border-radius: 12px !important; cursor: pointer !important; margin-bottom: 10px !important; }
-  .export-option:active { background: #dce6fc !important; }
-  .export-icon { font-size: 22px !important; }
-  .export-name { font-size: 14px !important; font-weight: 700 !important; color: #0f1f5c !important; }
-  .export-desc { font-size: 12px !important; color: #7a8cc0 !important; margin-top: 2px !important; }
-  .cancel-btn { width: 100% !important; margin-top: 8px !important; padding: 12px !important; background: #dce6fc !important; border: 2px solid #a8bdf5 !important; border-radius: 12px !important; color: #2d5be3 !important; font-size: 14px !important; font-weight: 700 !important; cursor: pointer !important; }
+/* confirm */
+.confirm-overlay { position: fixed !important; inset: 0 !important; background: rgba(15,31,92,0.4) !important; z-index: 300 !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 20px !important; }
+.confirm-box { background: #fff !important; border-radius: 18px !important; padding: 28px 24px !important; width: 100% !important; max-width: 340px !important; text-align: center !important; }
+.confirm-title { font-size: 17px !important; font-weight: 800 !important; color: #0f1f5c !important; margin-bottom: 8px !important; }
+.confirm-msg { font-size: 14px !important; color: #7a8cc0 !important; margin-bottom: 24px !important; line-height: 1.5 !important; }
+.confirm-btns { display: flex !important; gap: 10px !important; }
+.confirm-cancel { flex: 1 !important; padding: 12px !important; background: #dce6fc !important; border: 2px solid #a8bdf5 !important; border-radius: 12px !important; color: #2d5be3 !important; font-size: 15px !important; font-weight: 700 !important; cursor: pointer !important; }
+.confirm-delete { flex: 1 !important; padding: 12px !important; background: #c0392b !important; border: 2px solid #992d22 !important; border-radius: 12px !important; color: #fff !important; font-size: 15px !important; font-weight: 700 !important; cursor: pointer !important; }
 
-  .page { display: none !important; }
-  .page.active { display: block !important; }
-  .empty-state { text-align: center !important; padding: 28px 20px !important; color: #7a8cc0 !important; font-size: 14px !important; }
-  .sec-pad { padding: 16px 20px 8px !important; }
+/* export */
+.export-modal { background: #fff !important; border-radius: 24px 24px 0 0 !important; width: 100% !important; max-width: 430px !important; padding: 20px 20px 40px !important; }
+.export-option { display: flex !important; align-items: center !important; gap: 12px !important; padding: 14px !important; background: #eef2fd !important; border: 2px solid #c2d0f7 !important; border-radius: 12px !important; cursor: pointer !important; margin-bottom: 10px !important; }
+.export-option:active { background: #dce6fc !important; }
+.export-icon { font-size: 22px !important; }
+.export-name { font-size: 14px !important; font-weight: 700 !important; color: #0f1f5c !important; }
+.export-desc { font-size: 12px !important; color: #7a8cc0 !important; margin-top: 2px !important; }
+.cancel-btn { width: 100% !important; margin-top: 8px !important; padding: 12px !important; background: #dce6fc !important; border: 2px solid #a8bdf5 !important; border-radius: 12px !important; color: #2d5be3 !important; font-size: 14px !important; font-weight: 700 !important; cursor: pointer !important; }
+
+.page { display: none !important; }
+.page.active { display: block !important; }
+.empty-state { text-align: center !important; padding: 28px 20px !important; color: #7a8cc0 !important; font-size: 14px !important; }
+.sec-pad { padding: 16px 20px 8px !important; }
+#page-tx .header, #page-charts .header { padding-bottom: 8px !important; }
 </style>
+
 </head>
 <body>
 <div id="app">
 
   <!-- HOME -->
+
   <div id="page-home" class="page active">
     <div class="header">
       <div class="header-inner">
-        <div class="month-row">
-          <button class="month-btn" onclick="changeMonth(-1)">‹</button>
-          <span class="month-label" id="month-label"></span>
-          <button class="month-btn" onclick="changeMonth(1)">›</button>
+        <!-- Period tabs -->
+        <div class="period-tabs">
+          <button class="period-tab active" onclick="setPeriod('today',this)">Today</button>
+          <button class="period-tab" onclick="setPeriod('week',this)">Week</button>
+          <button class="period-tab" onclick="setPeriod('month',this)">Month</button>
+          <button class="period-tab" onclick="setPeriod('year',this)">Year</button>
         </div>
-        <div class="year-chip" id="year-label"></div>
+        <!-- Nav row -->
+        <div class="period-nav">
+          <button class="period-btn" onclick="navigatePeriod(-1)">‹</button>
+          <div class="period-label-wrap">
+            <div class="period-main" id="period-main-label">Today</div>
+            <div class="period-sub" id="period-sub-label"></div>
+          </div>
+          <button class="period-btn" onclick="navigatePeriod(1)">›</button>
+        </div>
       </div>
     </div>
-    <div class="summary">
-      <div class="card accent">
-        <div class="card-label">Total spent</div>
-        <div class="card-value" id="total-spent">€0.00</div>
-        <div class="card-sub" id="tx-count">0 transactions</div>
-      </div>
-      <div class="card small-blue"><div class="card-label">This week</div><div class="card-value" id="week-total">€0.00</div></div>
-      <div class="card small-blue"><div class="card-label">Daily avg</div><div class="card-value" id="daily-avg">€0.00</div></div>
-    </div>
-    <div class="week-section">
-      <div class="section-title">This week</div>
-      <div class="week-bar-wrap" id="week-bars"></div>
-      <div style="display:flex;gap:5px;margin-top:4px;" id="week-labels"></div>
-    </div>
-    <div class="sec-pad"><div class="section-title">Top 5 categories</div></div>
-    <div class="block" id="cat-list"><div class="empty-state">No expenses yet this month</div></div>
-    <div class="sec-pad"><div class="section-title">Last 10 transactions</div></div>
-    <div class="block" id="recent-tx-list"><div class="empty-state">No transactions yet</div></div>
+
+```
+<div class="summary">
+  <div class="card accent">
+    <div class="card-label" id="total-label">Total spent</div>
+    <div class="card-value" id="total-spent">€0.00</div>
+    <div class="card-sub" id="tx-count">0 transactions</div>
+  </div>
+  <div class="card small-blue">
+    <div class="card-label" id="card1-label">Best day</div>
+    <div class="card-value" id="card1-val">€0.00</div>
+    <div class="card-sub" id="card1-sub"></div>
+  </div>
+  <div class="card small-blue">
+    <div class="card-label" id="card2-label">Daily avg</div>
+    <div class="card-value" id="card2-val">€0.00</div>
+    <div class="card-sub" id="card2-sub"></div>
+  </div>
+</div>
+
+<div class="week-section" id="bar-section">
+  <div class="section-title" id="bar-title">Breakdown</div>
+  <div class="week-bar-wrap" id="week-bars"></div>
+  <div style="display:flex;gap:5px;margin-top:2px;" id="week-labels"></div>
+</div>
+
+<div class="sec-pad"><div class="section-title">Top 5 categories</div></div>
+<div class="block" id="cat-list"><div class="empty-state">No expenses yet</div></div>
+<div class="sec-pad"><div class="section-title" id="recent-title">Last 10 transactions</div></div>
+<div class="block" id="recent-tx-list"><div class="empty-state">No transactions yet</div></div>
+```
+
   </div>
 
   <!-- TRANSACTIONS -->
+
   <div id="page-tx" class="page">
     <div class="header">
       <div class="header-inner">
-        <div class="month-row">
-          <button class="month-btn" onclick="changeMonth(-1)">‹</button>
-          <span class="month-label" id="month-label2"></span>
-          <button class="month-btn" onclick="changeMonth(1)">›</button>
+        <div class="period-tabs">
+          <button class="period-tab active" onclick="setPeriodTx('today',this)">Today</button>
+          <button class="period-tab" onclick="setPeriodTx('week',this)">Week</button>
+          <button class="period-tab" onclick="setPeriodTx('month',this)">Month</button>
+          <button class="period-tab" onclick="setPeriodTx('year',this)">Year</button>
         </div>
-        <div class="year-chip" id="year-label2"></div>
+        <div class="period-nav">
+          <button class="period-btn" onclick="navigatePeriodTx(-1)">‹</button>
+          <div class="period-label-wrap">
+            <div class="period-main" id="tx-period-main">Today</div>
+            <div class="period-sub" id="tx-period-sub"></div>
+          </div>
+          <button class="period-btn" onclick="navigatePeriodTx(1)">›</button>
+        </div>
       </div>
     </div>
     <div class="sec-pad"><div class="section-title">Transactions</div></div>
@@ -276,15 +243,18 @@
   </div>
 
   <!-- CHARTS -->
+
   <div id="page-charts" class="page">
     <div class="header">
       <div class="header-inner">
-        <div class="month-row">
-          <button class="month-btn" onclick="changeMonth(-1)">‹</button>
-          <span class="month-label" id="month-label3"></span>
-          <button class="month-btn" onclick="changeMonth(1)">›</button>
+        <div class="period-nav" style="margin-bottom:0;">
+          <button class="period-btn" onclick="changeMonth(-1)">‹</button>
+          <div class="period-label-wrap">
+            <div class="period-main" id="month-label3"></div>
+            <div class="period-sub" id="year-label3"></div>
+          </div>
+          <button class="period-btn" onclick="changeMonth(1)">›</button>
         </div>
-        <div class="year-chip" id="year-label3"></div>
       </div>
     </div>
     <div class="sec-pad"><div class="section-title">Category split</div></div>
@@ -292,28 +262,20 @@
       <div style="position:relative;height:220px;"><canvas id="pie-chart"></canvas></div>
       <div id="pie-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;"></div>
     </div>
-    <div class="sec-pad"><div class="section-title">Spending breakdown</div></div>
+    <div class="sec-pad"><div class="section-title">Monthly spending</div></div>
     <div class="chart-wrap">
-      <div class="chart-tabs">
-        <button class="chart-tab active" onclick="setChartTab('donut',this)">By category</button>
-        <button class="chart-tab" onclick="setChartTab('bar',this)">Monthly</button>
-      </div>
-      <div id="donut-wrap" style="position:relative;height:220px;"><canvas id="donut-chart"></canvas></div>
-      <div id="bar-wrap" style="position:relative;height:220px;display:none;"><canvas id="bar-chart"></canvas></div>
-      <div id="chart-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;"></div>
+      <div style="position:relative;height:220px;"><canvas id="monthly-chart"></canvas></div>
     </div>
-    <div class="sec-pad"><div class="section-title">Monthly comparison</div></div>
+    <div class="sec-pad"><div class="section-title">Weekly comparison</div></div>
     <div class="chart-wrap">
-      <div style="position:relative;height:200px;"><canvas id="compare-chart"></canvas></div>
-      <div id="compare-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
+      <div style="position:relative;height:220px;"><canvas id="weekly-chart"></canvas></div>
+      <div id="weekly-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
     </div>
   </div>
 
-  <!-- ADD BTN -->
   <button class="add-btn" onclick="openModal()">
     <span style="font-size:20px;font-weight:800;line-height:1;">+</span> Add expense
   </button>
-
   <div class="nav">
     <button class="nav-btn active" onclick="showPage('home',this)"><span class="nav-icon">◻</span><span>Overview</span></button>
     <button class="nav-btn" onclick="showPage('tx',this)"><span class="nav-icon">☰</span><span>Transactions</span></button>
@@ -321,9 +283,11 @@
   </div>
 
   <!-- ADD EXPENSE MODAL -->
+
   <div class="modal-overlay" id="modal" style="display:none;" onclick="closeModalOutside(event)">
     <div class="modal">
       <div class="modal-handle"></div>
+      <div style="text-align:center;font-size:11px;color:#a8bdf5;margin-bottom:4px;">Swipe down or tap outside to close</div>
       <div class="modal-title">Add expense</div>
       <div class="form-row">
         <label class="form-label">Amount (€)</label>
@@ -357,7 +321,21 @@
     </div>
   </div>
 
+  <!-- DELETE CONFIRM -->
+
+  <div class="confirm-overlay" id="confirm-dialog" style="display:none;">
+    <div class="confirm-box">
+      <div class="confirm-title">Delete expense?</div>
+      <div class="confirm-msg" id="confirm-msg">Are you sure?</div>
+      <div class="confirm-btns">
+        <button class="confirm-cancel" onclick="cancelDelete()">Cancel</button>
+        <button class="confirm-delete" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
   <!-- EXPORT MODAL -->
+
   <div class="modal-overlay" id="export-modal" style="display:none;" onclick="closeExportOutside(event)">
     <div class="export-modal">
       <div class="modal-handle"></div>
@@ -367,13 +345,13 @@
         <span class="export-icon">📄</span>
         <div><div class="export-name">All expenses — CSV</div><div class="export-desc">Every transaction, opens in Excel / Numbers</div></div>
       </div>
-      <div class="export-option" onclick="exportCSV('month')">
+      <div class="export-option" onclick="exportCSV('period')">
         <span class="export-icon">📅</span>
-        <div><div class="export-name" id="export-month-label">This month — CSV</div><div class="export-desc">Only the currently selected month</div></div>
+        <div><div class="export-name" id="export-period-label">This period — CSV</div><div class="export-desc">Only the current view's transactions</div></div>
       </div>
       <div class="export-option" onclick="exportJSON()">
         <span class="export-icon">🗂</span>
-        <div><div class="export-name">Full backup — JSON</div><div class="export-desc">Complete data backup, all months</div></div>
+        <div><div class="export-name">Full backup — JSON</div><div class="export-desc">Complete data backup, all time</div></div>
       </div>
       <button class="cancel-btn" onclick="document.getElementById('export-modal').style.display='none'">Cancel</button>
     </div>
@@ -410,51 +388,240 @@ const TAGS={transport:['Work commute','Travel','Hangout','Errand','Other']};
 
 let customStores=JSON.parse(localStorage.getItem('spendly_custom')||'{}');
 let expenses=JSON.parse(localStorage.getItem('spendly_v3')||'[]');
-let currentDate=new Date();
+
+// Period state for overview
+let activePeriod='month'; // today | week | month | year
+let periodOffset=0; // how many periods back (0=current)
+
+// Period state for transactions
+let activePeriodTx='month';
+let periodOffsetTx=0;
+
+// Charts month
+let chartsDate=new Date();
+
 let selCat='groceries',selStore='',selTag='';
-let donutChart=null,pieChart=null,barChart=null,compareChart=null;
+let pieChart=null,monthlyChart=null,weeklyChart=null;
+let pendingDeleteId=null;
 
-function save(){localStorage.setItem('spendly_v3',JSON.stringify(expenses));localStorage.setItem('spendly_custom',JSON.stringify(customStores));}
+// Swipe to close modal
+let touchStartY=0;
+document.addEventListener('touchstart',e=>{touchStartY=e.touches[0].clientY;});
+document.addEventListener('touchmove',e=>{
+  if(document.getElementById('modal').style.display==='flex'){
+    if(e.touches[0].clientY-touchStartY>80) closeModal();
+  }
+});
+
+function save(){
+  localStorage.setItem('spendly_v3',JSON.stringify(expenses));
+  localStorage.setItem('spendly_custom',JSON.stringify(customStores));
+}
 function fmt(n){return '€'+Number(n).toFixed(2);}
-function monthTxs(date){const d=date||currentDate;return expenses.filter(e=>{const ed=new Date(e.date);return ed.getMonth()===d.getMonth()&&ed.getFullYear()===d.getFullYear();});}
-function changeMonth(dir){currentDate=new Date(currentDate.getFullYear(),currentDate.getMonth()+dir,1);render();}
+function fmtShort(n){return n>=1000?'€'+(n/1000).toFixed(1)+'k':'€'+Math.round(n);}
 
-function showPage(id,btn){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  if(id==='charts')renderCharts();
+// ── PERIOD LOGIC ──
+function getDateRange(period, offset){
+  const today=new Date(); today.setHours(0,0,0,0);
+  let start,end,mainLabel,subLabel;
+  if(period==='today'){
+    const d=new Date(today); d.setDate(d.getDate()+offset);
+    start=new Date(d); end=new Date(d); end.setHours(23,59,59,999);
+    const isToday=offset===0;
+    mainLabel=isToday?'Today':d.toLocaleDateString('en-GB',{weekday:'long'});
+    subLabel=d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  } else if(period==='week'){
+    const ws=new Date(today); ws.setDate(today.getDate()-((today.getDay()+6)%7)+(offset*7));
+    const we=new Date(ws); we.setDate(ws.getDate()+6); we.setHours(23,59,59,999);
+    start=ws; end=we;
+    const isThisWeek=offset===0;
+    mainLabel=isThisWeek?'This week':'Week of '+ws.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    subLabel=ws.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+we.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  } else if(period==='month'){
+    const d=new Date(today.getFullYear(),today.getMonth()+offset,1);
+    start=new Date(d.getFullYear(),d.getMonth(),1);
+    end=new Date(d.getFullYear(),d.getMonth()+1,0); end.setHours(23,59,59,999);
+    mainLabel=d.toLocaleString('default',{month:'long'});
+    subLabel=d.getFullYear().toString();
+  } else { // year
+    const yr=today.getFullYear()+offset;
+    start=new Date(yr,0,1); end=new Date(yr,11,31); end.setHours(23,59,59,999);
+    mainLabel=yr.toString();
+    subLabel=offset===0?'This year':'';
+  }
+  return {start,end,mainLabel,subLabel};
 }
 
-function render(){
-  const ml=currentDate.toLocaleString('default',{month:'long'}),yr=currentDate.getFullYear();
-  ['month-label','month-label2','month-label3'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=ml;});
-  ['year-label','year-label2','year-label3'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=yr;});
-  const txs=monthTxs(),total=txs.reduce((s,e)=>s+e.amount,0);
+function filterByRange(start,end){
+  return expenses.filter(e=>{
+    const d=new Date(e.date); d.setHours(12,0,0,0);
+    return d>=start && d<=end;
+  });
+}
+
+// ── OVERVIEW ──
+function setPeriod(p,btn){
+  activePeriod=p; periodOffset=0;
+  document.querySelectorAll('#page-home .period-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderOverview();
+}
+function navigatePeriod(dir){
+  periodOffset+=dir;
+  // Don't go into the future
+  if(periodOffset>0) periodOffset=0;
+  renderOverview();
+}
+
+function renderOverview(){
+  const {start,end,mainLabel,subLabel}=getDateRange(activePeriod,periodOffset);
+  document.getElementById('period-main-label').textContent=mainLabel;
+  document.getElementById('period-sub-label').textContent=subLabel;
+
+  const txs=filterByRange(start,end);
+  const total=txs.reduce((s,e)=>s+e.amount,0);
+
   document.getElementById('total-spent').textContent=fmt(total);
   document.getElementById('tx-count').textContent=txs.length+' transaction'+(txs.length!==1?'s':'');
-  const today=new Date(),ws=new Date(today);ws.setDate(today.getDate()-((today.getDay()+6)%7));
-  const wk=expenses.filter(e=>{const d=new Date(e.date);return d>=ws&&d<=today;});
-  document.getElementById('week-total').textContent=fmt(wk.reduce((s,e)=>s+e.amount,0));
-  const dim=new Date(currentDate.getFullYear(),currentDate.getMonth()+1,0).getDate();
-  const dp=currentDate.getMonth()===today.getMonth()&&currentDate.getFullYear()===today.getFullYear()?today.getDate():dim;
-  document.getElementById('daily-avg').textContent=fmt(dp>0?total/dp:0);
-  renderWeekBars();renderCatList(txs,total);renderTxList(txs);renderRecentTx();
+
+  // Contextual cards
+  renderContextCards(activePeriod,txs,start,end);
+
+  // Breakdown bars
+  renderBars(activePeriod,txs,start,end);
+
+  // Categories
+  renderCatList(txs,total);
+
+  // Recent
+  const recentAll=[...expenses].sort((a,b)=>new Date(b.date+'T'+(b.time||'00:00'))-new Date(a.date+'T'+(a.time||'00:00'))).slice(0,10);
+  renderRecentTx(recentAll);
 }
 
-function renderWeekBars(){
-  const today=new Date(),ws=new Date(today);ws.setDate(today.getDate()-((today.getDay()+6)%7));
-  const days=['Mo','Tu','We','Th','Fr','Sa','Su'],amts=[0,0,0,0,0,0,0];
-  expenses.forEach(e=>{const d=new Date(e.date);for(let i=0;i<7;i++){const wd=new Date(ws);wd.setDate(ws.getDate()+i);if(d.toDateString()===wd.toDateString())amts[i]+=e.amount;}});
-  const max=Math.max(...amts,1),ti=(today.getDay()+6)%7;
-  document.getElementById('week-bars').innerHTML=amts.map((a,i)=>`<div class="week-bar-col"><div class="week-bar" style="height:${Math.max(4,Math.round(a/max*52))}px;background:${i===ti?'#2d5be3':'#c2d0f7'};"></div></div>`).join('');
-  document.getElementById('week-labels').innerHTML=days.map((d,i)=>`<div style="flex:1;text-align:center;" class="week-day${i===ti?' today':''}">${d}</div>`).join('');
+function renderContextCards(period,txs,start,end){
+  const lbl1=document.getElementById('card1-label');
+  const val1=document.getElementById('card1-val');
+  const sub1=document.getElementById('card1-sub');
+  const lbl2=document.getElementById('card2-label');
+  const val2=document.getElementById('card2-val');
+  const sub2=document.getElementById('card2-sub');
+
+  if(period==='today'){
+    // Biggest single expense today & number of transactions
+    const biggest=txs.length?txs.reduce((a,b)=>a.amount>b.amount?a:b,txs[0]):null;
+    lbl1.textContent='Biggest expense';
+    val1.textContent=biggest?fmt(biggest.amount):'€0.00';
+    sub1.textContent=biggest?(biggest.store||'—'):'';
+    lbl2.textContent='Transactions';
+    val2.textContent=txs.length;
+    sub2.textContent='today';
+  } else if(period==='week'){
+    // Best day & daily avg
+    const dayMap={};
+    txs.forEach(e=>{dayMap[e.date]=(dayMap[e.date]||0)+e.amount;});
+    const dayAmts=Object.values(dayMap);
+    const best=dayAmts.length?Math.max(...dayAmts):0;
+    const bestDay=dayAmts.length?Object.entries(dayMap).find(([,v])=>v===best):null;
+    lbl1.textContent='Best day';
+    val1.textContent=fmt(best);
+    sub1.textContent=bestDay?new Date(bestDay[0]).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}):'';
+    const days=Math.round((end-start)/(1000*60*60*24))+1;
+    const total=txs.reduce((s,e)=>s+e.amount,0);
+    lbl2.textContent='Daily avg';
+    val2.textContent=fmt(days>0?total/days:0);
+    sub2.textContent='this week';
+  } else if(period==='month'){
+    // Best week & daily avg for that month
+    const dayMap={};
+    txs.forEach(e=>{dayMap[e.date]=(dayMap[e.date]||0)+e.amount;});
+    const dayAmts=Object.values(dayMap);
+    const best=dayAmts.length?Math.max(...dayAmts):0;
+    lbl1.textContent='Best day';
+    val1.textContent=fmt(best);
+    sub1.textContent='highest single day';
+    const daysInPeriod=Math.round((end-start)/(1000*60*60*24))+1;
+    const total=txs.reduce((s,e)=>s+e.amount,0);
+    lbl2.textContent='Daily avg';
+    val2.textContent=fmt(daysInPeriod>0?total/daysInPeriod:0);
+    sub2.textContent='this month';
+  } else { // year
+    const monthMap={};
+    txs.forEach(e=>{const m=e.date.slice(0,7);monthMap[m]=(monthMap[m]||0)+e.amount;});
+    const monthAmts=Object.values(monthMap);
+    const best=monthAmts.length?Math.max(...monthAmts):0;
+    lbl1.textContent='Best month';
+    val1.textContent=fmt(best);
+    sub1.textContent='highest spending month';
+    const total=txs.reduce((s,e)=>s+e.amount,0);
+    lbl2.textContent='Monthly avg';
+    val2.textContent=fmt(monthAmts.length?total/monthAmts.length:0);
+    sub2.textContent='per month';
+  }
+}
+
+function renderBars(period,txs,start,end){
+  const barsEl=document.getElementById('week-bars');
+  const labelsEl=document.getElementById('week-labels');
+  const title=document.getElementById('bar-title');
+  const today=new Date(); today.setHours(0,0,0,0);
+
+  if(period==='today'){
+    // Hours of the day (6-hour blocks)
+    title.textContent='Spending by time of day';
+    const blocks=['00–06','06–12','12–18','18–24'];
+    const amts=[0,0,0,0];
+    txs.forEach(e=>{
+      if(e.time){
+        const h=parseInt(e.time.split(':')[0]);
+        amts[Math.min(3,Math.floor(h/6))]+=e.amount;
+      }
+    });
+    const max=Math.max(...amts,1);
+    barsEl.innerHTML=amts.map(a=>`<div class="week-bar-col">${a>0?`<div class="week-amt-label">${fmtShort(a)}</div>`:'<div class="week-amt-label" style="opacity:0;">€0</div>'}<div class="week-bar" style="height:${Math.max(4,Math.round(a/max*52))}px;background:#c2d0f7;"></div></div>`).join('');
+    labelsEl.innerHTML=blocks.map(b=>`<div style="flex:1;text-align:center;" class="week-day-label">${b}</div>`).join('');
+  } else if(period==='week'){
+    title.textContent='This week by day';
+    const days=['Mo','Tu','We','Th','Fr','Sa','Su'];
+    const amts=[0,0,0,0,0,0,0];
+    const ws=new Date(start);
+    txs.forEach(e=>{
+      const d=new Date(e.date);d.setHours(12);
+      for(let i=0;i<7;i++){const wd=new Date(ws);wd.setDate(ws.getDate()+i);if(d.toDateString()===wd.toDateString())amts[i]+=e.amount;}
+    });
+    const max=Math.max(...amts,1);
+    const ti=periodOffset===0?(today.getDay()+6)%7:-1;
+    barsEl.innerHTML=amts.map((a,i)=>`<div class="week-bar-col">${a>0?`<div class="week-amt-label">${fmtShort(a)}</div>`:'<div class="week-amt-label" style="opacity:0;">€0</div>'}<div class="week-bar" style="height:${Math.max(4,Math.round(a/max*52))}px;background:${i===ti?'#2d5be3':'#c2d0f7'};"></div></div>`).join('');
+    labelsEl.innerHTML=days.map((d,i)=>`<div style="flex:1;text-align:center;">${i===ti?'<div class="today-badge">Today</div>':''}<div class="week-day-label${i===ti?' today':''}">${d}</div></div>`).join('');
+  } else if(period==='month'){
+    // Weeks of the month
+    title.textContent='This month by week';
+    const weeks=[];
+    let cur=new Date(start);
+    while(cur<=end){
+      const wEnd=new Date(cur);wEnd.setDate(cur.getDate()+6);if(wEnd>end)wEnd.setTime(end.getTime());
+      weeks.push({s:new Date(cur),e:new Date(wEnd)});
+      cur.setDate(cur.getDate()+7);
+    }
+    const amts=weeks.map(w=>txs.filter(e=>{const d=new Date(e.date);d.setHours(12);return d>=w.s&&d<=w.e;}).reduce((s,e)=>s+e.amount,0));
+    const max=Math.max(...amts,1);
+    barsEl.innerHTML=amts.map(a=>`<div class="week-bar-col">${a>0?`<div class="week-amt-label">${fmtShort(a)}</div>`:'<div class="week-amt-label" style="opacity:0;">€0</div>'}<div class="week-bar" style="height:${Math.max(4,Math.round(a/max*52))}px;background:#c2d0f7;"></div></div>`).join('');
+    labelsEl.innerHTML=weeks.map((w,i)=>`<div style="flex:1;text-align:center;" class="week-day-label">W${i+1}</div>`).join('');
+  } else {
+    // Months of the year
+    title.textContent='This year by month';
+    const months=['J','F','M','A','M','J','J','A','S','O','N','D'];
+    const yr=start.getFullYear();
+    const amts=months.map((_,m)=>txs.filter(e=>{const d=new Date(e.date);return d.getFullYear()===yr&&d.getMonth()===m;}).reduce((s,e)=>s+e.amount,0));
+    const max=Math.max(...amts,1);
+    const curM=periodOffset===0?today.getMonth():-1;
+    barsEl.innerHTML=amts.map((a,i)=>`<div class="week-bar-col">${a>0?`<div class="week-amt-label">${fmtShort(a)}</div>`:'<div class="week-amt-label" style="opacity:0;">€0</div>'}<div class="week-bar" style="height:${Math.max(4,Math.round(a/max*52))}px;background:${i===curM?'#2d5be3':'#c2d0f7'};"></div></div>`).join('');
+    labelsEl.innerHTML=months.map((m,i)=>`<div style="flex:1;text-align:center;" class="week-day-label${i===curM?' today':''}">${m}</div>`).join('');
+  }
 }
 
 function renderCatList(txs,total){
   const el=document.getElementById('cat-list');
-  if(!txs.length){el.innerHTML='<div class="empty-state">No expenses yet this month</div>';return;}
+  if(!txs.length){el.innerHTML='<div class="empty-state">No expenses yet</div>';return;}
   const bycat={};CATEGORIES.forEach(c=>bycat[c.id]=0);
   txs.forEach(e=>{if(bycat[e.category]!==undefined)bycat[e.category]+=e.amount;});
   el.innerHTML=CATEGORIES.filter(c=>bycat[c.id]>0).sort((a,b)=>bycat[b.id]-bycat[a.id]).slice(0,5).map(c=>{
@@ -481,92 +648,156 @@ function makeTxHTML(e,showDelete){
     </div>
     <div style="text-align:right;flex-shrink:0;">
       <div class="tx-amount">${fmt(e.amount)}</div>
-      ${showDelete?`<button class="delete-btn" onclick="deleteExpense('${e.id}')">×</button>`:''}
+      ${showDelete?`<button class="delete-btn" onclick="askDelete('${e.id}','${(lbl||cat.label).replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${e.amount})">Delete</button>`:''}
     </div>
   </div>`;
 }
 
-function renderRecentTx(){
+function renderRecentTx(list){
   const el=document.getElementById('recent-tx-list');
-  if(!expenses.length){el.innerHTML='<div class="empty-state">No transactions yet</div>';return;}
-  const recent=[...expenses].sort((a,b)=>new Date(b.date+'T'+(b.time||'00:00'))-new Date(a.date+'T'+(a.time||'00:00'))).slice(0,10);
-  el.innerHTML=recent.map(e=>makeTxHTML(e,false)).join('');
+  if(!list.length){el.innerHTML='<div class="empty-state">No transactions yet</div>';return;}
+  el.innerHTML=list.map(e=>makeTxHTML(e,false)).join('');
+}
+
+// ── TRANSACTIONS PAGE ──
+function setPeriodTx(p,btn){
+  activePeriodTx=p; periodOffsetTx=0;
+  document.querySelectorAll('#page-tx .period-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTxPage();
+}
+function navigatePeriodTx(dir){
+  periodOffsetTx+=dir;
+  if(periodOffsetTx>0) periodOffsetTx=0;
+  renderTxPage();
+}
+function renderTxPage(){
+  const {start,end,mainLabel,subLabel}=getDateRange(activePeriodTx,periodOffsetTx);
+  document.getElementById('tx-period-main').textContent=mainLabel;
+  document.getElementById('tx-period-sub').textContent=subLabel;
+  const txs=filterByRange(start,end);
+  renderTxList(txs);
 }
 
 function renderTxList(txs){
   const el=document.getElementById('tx-list');
-  if(!txs.length){el.innerHTML='<div class="empty-state">No transactions this month</div>';return;}
+  if(!txs.length){el.innerHTML='<div class="empty-state">No transactions this period</div>';return;}
   const sorted=[...txs].sort((a,b)=>new Date(b.date+'T'+(b.time||'00:00'))-new Date(a.date+'T'+(a.time||'00:00')));
   const grouped={};
   sorted.forEach(e=>{const k=new Date(e.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});if(!grouped[k])grouped[k]=[];grouped[k].push(e);});
   el.innerHTML=Object.entries(grouped).map(([date,items])=>`<div class="date-label">${date}</div>${items.map(e=>makeTxHTML(e,true)).join('')}`).join('');
 }
 
-function buildCatData(){
-  const txs=monthTxs(),bycat={};
+// ── DELETE ──
+function askDelete(id,label,amount){
+  pendingDeleteId=id;
+  document.getElementById('confirm-msg').textContent=`Delete "${label}" (${fmt(amount)})? This cannot be undone.`;
+  document.getElementById('confirm-dialog').style.display='flex';
+}
+function cancelDelete(){pendingDeleteId=null;document.getElementById('confirm-dialog').style.display='none';}
+function confirmDelete(){
+  if(pendingDeleteId){expenses=expenses.filter(e=>e.id!==pendingDeleteId);save();renderOverview();renderTxPage();}
+  cancelDelete();
+}
+
+// ── CHARTS ──
+function changeMonth(dir){
+  chartsDate=new Date(chartsDate.getFullYear(),chartsDate.getMonth()+dir,1);
+  renderCharts();
+}
+function renderCharts(){
+  const ml=chartsDate.toLocaleString('default',{month:'long'}),yr=chartsDate.getFullYear();
+  document.getElementById('month-label3').textContent=ml;
+  document.getElementById('year-label3').textContent=yr;
+  renderPieChart();renderMonthlyChart();renderWeeklyChart();
+}
+function monthTxsChart(date){
+  const d=date||chartsDate;
+  return expenses.filter(e=>{const ed=new Date(e.date);return ed.getMonth()===d.getMonth()&&ed.getFullYear()===d.getFullYear();});
+}
+function renderPieChart(){
+  const txs=monthTxsChart(),bycat={};
   CATEGORIES.forEach(c=>bycat[c.id]=0);
   txs.forEach(e=>{if(bycat[e.category]!==undefined)bycat[e.category]+=e.amount;});
-  return CATEGORIES.filter(c=>bycat[c.id]>0).map(c=>({...c,amount:bycat[c.id]}));
-}
-
-function renderCharts(){
-  const used=buildCatData();
+  const used=CATEGORIES.filter(c=>bycat[c.id]>0).map(c=>({...c,amount:bycat[c.id]}));
   if(pieChart)pieChart.destroy();
-  if(donutChart)donutChart.destroy();
   const pieLeg=document.getElementById('pie-legend');
-  const chartLeg=document.getElementById('chart-legend');
-  if(!used.length){pieLeg.innerHTML='<div style="color:#7a8cc0;font-size:13px;width:100%;text-align:center;">No data for this month</div>';chartLeg.innerHTML='';}
-  else{
-    const totalAmt=used.reduce((s,c)=>s+c.amount,0);
-    const ds={data:used.map(c=>c.amount),backgroundColor:used.map(c=>c.color),borderWidth:2,borderColor:'#fff',hoverOffset:6};
-    pieChart=new Chart(document.getElementById('pie-chart').getContext('2d'),{type:'pie',data:{labels:used.map(c=>c.label),datasets:[{...ds}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed)+' ('+Math.round(ctx.parsed/totalAmt*100)+'%)'}}}}});
-    donutChart=new Chart(document.getElementById('donut-chart').getContext('2d'),{type:'doughnut',data:{labels:used.map(c=>c.label),datasets:[{...ds}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed)}}}}});
-    const leg=used.map(c=>`<span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:${c.color};display:inline-block;"></span>${c.label} ${fmt(c.amount)}</span>`).join('');
-    pieLeg.innerHTML=leg;chartLeg.innerHTML=leg;
+  if(!used.length){pieLeg.innerHTML='<div style="color:#7a8cc0;font-size:13px;width:100%;text-align:center;">No data for this month</div>';return;}
+  const totalAmt=used.reduce((s,c)=>s+c.amount,0);
+  pieChart=new Chart(document.getElementById('pie-chart').getContext('2d'),{
+    type:'pie',
+    data:{labels:used.map(c=>c.label),datasets:[{data:used.map(c=>c.amount),backgroundColor:used.map(c=>c.color),borderWidth:2,borderColor:'#fff',hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed)+' ('+Math.round(ctx.parsed/totalAmt*100)+'%)'}}}}
+  });
+  pieLeg.innerHTML=used.map(c=>`<span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:${c.color};display:inline-block;"></span>${c.label} ${fmt(c.amount)}</span>`).join('');
+}
+function renderMonthlyChart(){
+  const months=[],amounts=[],fullLabels=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(chartsDate.getFullYear(),chartsDate.getMonth()-i,1);
+    const total=monthTxsChart(d).reduce((s,e)=>s+e.amount,0);
+    months.push(d.toLocaleString('default',{month:'short'}));
+    fullLabels.push(d.toLocaleString('default',{month:'long'})+' '+d.getFullYear());
+    amounts.push(parseFloat(total.toFixed(2)));
   }
-  renderBarChart();renderCompareChart();
+  if(monthlyChart)monthlyChart.destroy();
+  monthlyChart=new Chart(document.getElementById('monthly-chart').getContext('2d'),{
+    type:'bar',
+    data:{labels:months,datasets:[{data:amounts,backgroundColor:amounts.map((_,i)=>i===5?'#2d5be3':'#c2d0f7'),borderColor:amounts.map((_,i)=>i===5?'#1e44c8':'#a8bdf5'),borderWidth:2,borderRadius:8,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>fullLabels[ctx[0].dataIndex],label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#7a8cc0',font:{size:11,weight:'600'}}}}}
+  });
+}
+function renderWeeklyChart(){
+  const today=new Date();
+  const labels=[],amounts=[],fullLabels=[];
+  for(let w=5;w>=0;w--){
+    const ws=new Date(today);ws.setDate(today.getDate()-((today.getDay()+6)%7)-(w*7));
+    const we=new Date(ws);we.setDate(ws.getDate()+6);
+    const total=expenses.filter(e=>{const d=new Date(e.date);d.setHours(12);return d>=ws&&d<=we;}).reduce((s,e)=>s+e.amount,0);
+    const s=ws.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    const en=we.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    labels.push(w===0?'This week':s);
+    fullLabels.push(`${s} – ${en}`);
+    amounts.push(parseFloat(total.toFixed(2)));
+  }
+  if(weeklyChart)weeklyChart.destroy();
+  weeklyChart=new Chart(document.getElementById('weekly-chart').getContext('2d'),{
+    type:'bar',
+    data:{labels,datasets:[{data:amounts,backgroundColor:amounts.map((_,i)=>i===5?'#2d5be3':'#c2d0f7'),borderColor:amounts.map((_,i)=>i===5?'#1e44c8':'#a8bdf5'),borderWidth:2,borderRadius:8,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>fullLabels[ctx[0].dataIndex],label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#7a8cc0',font:{size:10,weight:'600'},maxRotation:20}}}}
+  });
+  document.getElementById('weekly-legend').innerHTML=`<span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:#2d5be3;display:inline-block;"></span>This week</span><span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:#c2d0f7;display:inline-block;"></span>Previous weeks</span>`;
 }
 
-function renderBarChart(){
-  const months=[],amounts=[];
-  for(let i=5;i>=0;i--){const d=new Date(currentDate.getFullYear(),currentDate.getMonth()-i,1);months.push(d.toLocaleString('default',{month:'short'}));amounts.push(monthTxs(d).reduce((s,e)=>s+e.amount,0));}
-  if(barChart)barChart.destroy();
-  barChart=new Chart(document.getElementById('bar-chart').getContext('2d'),{type:'bar',data:{labels:months,datasets:[{data:amounts,backgroundColor:'#2d5be3',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#7a8cc0',font:{size:11}}}}}});
+// ── PAGE SWITCHING ──
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(id==='charts'){chartsDate=new Date();renderCharts();}
+  if(id==='tx') renderTxPage();
 }
 
-function renderCompareChart(){
-  const months=[],amounts=[];
-  for(let i=5;i>=0;i--){const d=new Date(currentDate.getFullYear(),currentDate.getMonth()-i,1);months.push(d.toLocaleString('default',{month:'short'})+' '+d.getFullYear());amounts.push(parseFloat(monthTxs(d).reduce((s,e)=>s+e.amount,0).toFixed(2)));}
-  if(compareChart)compareChart.destroy();
-  compareChart=new Chart(document.getElementById('compare-chart').getContext('2d'),{type:'bar',data:{labels:months.map(m=>m.slice(0,3)),datasets:[{data:amounts,backgroundColor:amounts.map((_,i)=>i===5?'#2d5be3':'#c2d0f7'),borderColor:amounts.map((_,i)=>i===5?'#1e44c8':'#a8bdf5'),borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed.y),title:ctx=>months[ctx[0].dataIndex]}}},scales:{y:{beginAtZero:true,grid:{color:'#eef2fd'},ticks:{callback:v=>'€'+v,color:'#7a8cc0',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#7a8cc0',font:{size:11,weight:'600'}}}}}});
-  document.getElementById('compare-legend').innerHTML=`<span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:#2d5be3;display:inline-block;"></span>Current month</span><span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#3a4e9a;font-weight:600;"><span style="width:10px;height:10px;border-radius:2px;background:#c2d0f7;display:inline-block;"></span>Previous months</span>`;
-}
-
-function setChartTab(tab,btn){
-  document.querySelectorAll('.chart-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  document.getElementById('donut-wrap').style.display=tab==='donut'?'block':'none';
-  document.getElementById('bar-wrap').style.display=tab==='bar'?'block':'none';
-  document.getElementById('chart-legend').style.display=tab!=='bar'?'flex':'none';
-  if(tab==='bar')renderBarChart();
-}
-
+// ── EXPORT ──
 function openExportModal(){
-  const ml=currentDate.toLocaleString('default',{month:'long'}),yr=currentDate.getFullYear();
   document.getElementById('export-info-label').textContent=expenses.length+' total transactions';
-  document.getElementById('export-month-label').textContent=`${ml} ${yr} — CSV`;
+  const {mainLabel,subLabel}=getDateRange(activePeriodTx,periodOffsetTx);
+  document.getElementById('export-period-label').textContent=`${mainLabel}${subLabel?' ('+subLabel+')':''} — CSV`;
   document.getElementById('export-modal').style.display='flex';
 }
 function closeExportOutside(e){if(e.target.id==='export-modal')document.getElementById('export-modal').style.display='none';}
 function downloadFile(content,filename,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);document.getElementById('export-modal').style.display='none';}
 function exportCSV(scope){
-  const rows=scope==='month'?monthTxs():expenses;
-  const ml=currentDate.toLocaleString('default',{month:'long'}),yr=currentDate.getFullYear();
+  const {start,end}=getDateRange(activePeriodTx,periodOffsetTx);
+  const rows=scope==='period'?filterByRange(start,end):expenses;
   const headers=['Date','Time','Category','Store','Purpose','Note','Amount (EUR)'];
   const lines=rows.map(e=>{const cat=CATEGORIES.find(c=>c.id===e.category)||{label:'Other'};return[e.date,e.time||'',cat.label,e.store||'',e.tag||'',e.note||'',e.amount.toFixed(2)].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',');});
-  downloadFile([headers.join(','),...lines].join('\n'),scope==='month'?`spendly_${ml}_${yr}.csv`:'spendly_all.csv','text/csv');
+  downloadFile([headers.join(','),...lines].join('\n'),scope==='period'?'spendly_period.csv':'spendly_all.csv','text/csv');
 }
 function exportJSON(){downloadFile(JSON.stringify({exported:new Date().toISOString(),expenses},null,2),'spendly_backup.json','application/json');}
 
+// ── FORM ──
 function allStores(c){const def=STORES[c]||['Other'],cus=customStores[c]||[];return[...def,...cus.filter(s=>!def.includes(s))];}
 function buildStorePills(c){
   document.getElementById('store-label').textContent=STORE_LABELS[c]||'Type';
@@ -597,16 +828,15 @@ function buildCatGrid(){
   document.getElementById('cat-grid').innerHTML=CATEGORIES.map(c=>`<div class="cat-choice${c.id===selCat?' selected':''}" onclick="pickCat('${c.id}',this)"><div class="cat-choice-icon">${c.icon}</div><div class="cat-choice-label">${c.label}</div></div>`).join('');
 }
 function pickCat(id,el){selCat=id;document.querySelectorAll('.cat-choice').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');buildStorePills(id);buildTagPills(id);}
+function closeModal(){document.getElementById('modal').style.display='none';}
 function openModal(){
-  document.getElementById('inp-amount').value='';
-  document.getElementById('inp-note').value='';
-  document.getElementById('inp-custom-store').value='';
+  document.getElementById('inp-amount').value='';document.getElementById('inp-note').value='';document.getElementById('inp-custom-store').value='';
   document.getElementById('inp-date').value=new Date().toISOString().split('T')[0];
   selCat='groceries';buildCatGrid();buildStorePills('groceries');buildTagPills('groceries');
   document.getElementById('modal').style.display='flex';
   setTimeout(()=>document.getElementById('inp-amount').focus(),100);
 }
-function closeModalOutside(e){if(e.target.id==='modal')document.getElementById('modal').style.display='none';}
+function closeModalOutside(e){if(e.target.id==='modal')closeModal();}
 function addExpense(){
   const amount=parseFloat(document.getElementById('inp-amount').value);
   const date=document.getElementById('inp-date').value;
@@ -615,10 +845,12 @@ function addExpense(){
   const now=new Date();
   const time=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
   expenses.push({id:Date.now().toString(),amount,store:selStore,tag:selTag,note,date,time,category:selCat});
-  save();document.getElementById('modal').style.display='none';render();
+  save();closeModal();renderOverview();renderTxPage();
 }
-function deleteExpense(id){expenses=expenses.filter(e=>e.id!==id);save();render();}
-render();
+
+// Init
+renderOverview();
 </script>
+
 </body>
 </html>
