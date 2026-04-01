@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -175,13 +174,11 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
 .empty-state { text-align: center !important; padding: 28px 20px !important; color: #7a8cc0 !important; font-size: 14px !important; }
 .sec-pad { padding: 16px 20px 8px !important; }
 </style>
-
 </head>
 <body>
 <div id="app">
 
   <!-- HOME -->
-
   <div id="page-home" class="page active">
     <div class="header">
       <div class="header-inner">
@@ -230,7 +227,6 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
   </div>
 
   <!-- TRANSACTIONS -->
-
   <div id="page-tx" class="page">
     <div class="header">
       <div class="header-inner">
@@ -258,7 +254,6 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
   </div>
 
   <!-- CHARTS -->
-
   <div id="page-charts" class="page">
     <div class="header">
       <div class="header-inner">
@@ -279,27 +274,24 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
       </div>
     </div>
 
-```
-<div class="sec-pad"><div class="section-title">Spending trend</div></div>
-<div class="chart-wrap">
-  <div style="position:relative;height:220px;"><canvas id="trend-chart"></canvas></div>
-  <div id="trend-x-label" style="text-align:center;font-size:11px;color:#7a8cc0;margin-top:8px;font-weight:600;"></div>
-</div>
+    <div class="sec-pad"><div class="section-title">Spending trend</div></div>
+    <div class="chart-wrap">
+      <div style="position:relative;height:220px;"><canvas id="trend-chart"></canvas></div>
+      <div id="trend-x-label" style="text-align:center;font-size:11px;color:#7a8cc0;margin-top:8px;font-weight:600;"></div>
+    </div>
 
-<!-- Spend breakdown (pie) -->
-<div class="sec-pad"><div class="section-title">Spend breakdown</div></div>
-<div class="chart-wrap">
-  <div style="position:relative;height:220px;"><canvas id="pie-chart"></canvas></div>
-  <div id="pie-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;"></div>
-</div>
+    <!-- Spend breakdown (pie) -->
+    <div class="sec-pad"><div class="section-title">Spend breakdown</div></div>
+    <div class="chart-wrap">
+      <div style="position:relative;height:220px;"><canvas id="pie-chart"></canvas></div>
+      <div id="pie-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;"></div>
+    </div>
 
-<!-- Category horizontal bars -->
-<div class="sec-pad"><div class="section-title">Category totals</div></div>
-<div class="chart-wrap" id="hbar-wrap">
-  <div class="empty-state">No data for this month</div>
-</div>
-```
-
+    <!-- Category horizontal bars -->
+    <div class="sec-pad"><div class="section-title">Category totals</div></div>
+    <div class="chart-wrap" id="hbar-wrap">
+      <div class="empty-state">No data for this month</div>
+    </div>
   </div>
 
   <button class="add-btn" onclick="openModal()">
@@ -312,7 +304,6 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
   </div>
 
   <!-- ADD EXPENSE MODAL -->
-
   <div class="modal-overlay" id="modal" style="display:none;" onclick="closeModalOutside(event)">
     <div class="modal" id="modal-inner">
       <div class="modal-handle"></div>
@@ -351,7 +342,6 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
   </div>
 
   <!-- DELETE CONFIRM -->
-
   <div class="confirm-overlay" id="confirm-dialog" style="display:none;">
     <div class="confirm-box">
       <div class="confirm-title">Are you sure?</div>
@@ -364,7 +354,6 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
   </div>
 
   <!-- CANCEL MODAL CONFIRM -->
-
   <div class="confirm-overlay" id="cancel-modal-confirm" style="display:none;">
     <div class="confirm-box">
       <div class="confirm-title">Cancel adding expense?</div>
@@ -377,7 +366,6 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
   </div>
 
   <!-- DRILL DOWN MODAL -->
-
   <div class="drill-overlay" id="drill-modal" style="display:none;" onclick="closeDrillOutside(event)">
     <div class="drill-modal">
       <div class="modal-handle"></div>
@@ -393,7 +381,6 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
   </div>
 
   <!-- EXPORT MODAL -->
-
   <div class="modal-overlay" id="export-modal" style="display:none;" onclick="closeExportOutside(event)">
     <div class="export-modal">
       <div class="modal-handle"></div>
@@ -1075,6 +1062,5 @@ function addExpense(){
 
 renderOverview();
 </script>
-
 </body>
 </html>
