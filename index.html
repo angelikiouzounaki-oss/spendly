@@ -192,12 +192,12 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
           <button class="period-tab" onclick="setPeriod('year',this)">Year</button>
         </div>
         <div class="period-nav">
-          <button class="period-btn" id="home-prev" onclick="navigatePeriod(-1)">‹</button>
+          <button class="period-btn" id="home-prev" onclick="navigatePeriod(-1)">&#8249;</button>
           <div class="period-label-wrap">
             <div class="period-main" id="period-main-label"></div>
             <div id="period-sub-wrap" style="margin-top:3px;text-align:center;display:none;"></div>
           </div>
-          <button class="period-btn" id="home-next" onclick="navigatePeriod(1)">›</button>
+          <button class="period-btn" id="home-next" onclick="navigatePeriod(1)">&#8250;</button>
         </div>
       </div>
     </div>
@@ -241,12 +241,12 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
           <button class="period-tab" onclick="setPeriodTx('year',this)">Year</button>
         </div>
         <div class="period-nav">
-          <button class="period-btn" id="tx-prev" onclick="navigatePeriodTx(-1)">‹</button>
+          <button class="period-btn" id="tx-prev" onclick="navigatePeriodTx(-1)">&#8249;</button>
           <div class="period-label-wrap">
             <div class="period-main" id="tx-period-main"></div>
             <div id="tx-period-sub-wrap" style="margin-top:3px;text-align:center;display:none;"></div>
           </div>
-          <button class="period-btn" id="tx-next" onclick="navigatePeriodTx(1)">›</button>
+          <button class="period-btn" id="tx-next" onclick="navigatePeriodTx(1)">&#8250;</button>
         </div>
       </div>
     </div>
@@ -269,12 +269,12 @@ button { -webkit-appearance: none !important; appearance: none !important; font-
           <button class="period-tab" onclick="setChartPeriod('year',this)">Year</button>
         </div>
         <div class="period-nav">
-          <button class="period-btn" id="chart-prev-btn" onclick="navChart(-1)">‹</button>
+          <button class="period-btn" id="chart-prev-btn" onclick="navChart(-1)">&#8249;</button>
           <div class="period-label-wrap">
             <div class="period-main" id="chart-period-label"></div>
             <div id="chart-badge-wrap" style="margin-top:3px;text-align:center;display:none;"></div>
           </div>
-          <button class="period-btn" id="chart-next-btn" onclick="navChart(1)">›</button>
+          <button class="period-btn" id="chart-next-btn" onclick="navChart(1)">&#8250;</button>
         </div>
       </div>
     </div>
@@ -446,8 +446,8 @@ const TAGS={transport:['Work commute','Travel','Hangout','Errand','Other']};
 
 let customStores=JSON.parse(localStorage.getItem('spendly_custom')||'{}');
 let expenses=JSON.parse(localStorage.getItem('spendly_v3')||'[]');
-let activePeriod='month', periodOffset=0;
-let activePeriodTx='month', periodOffsetTx=0;
+let activePeriod='today', periodOffset=0;
+let activePeriodTx='today', periodOffsetTx=0;
 let chartsDate=new Date();
 let selCat='groceries', selStore='', selTag='';
 let pieChart=null, monthlyChart=null, weeklyChart=null;
@@ -650,7 +650,7 @@ function renderCatList(txs,total){
       <div class="cat-info"><div class="cat-name">${c.label}</div>
         <div class="cat-bar-wrap"><div class="cat-bar" style="width:${pct}%;background:${c.color};"></div></div></div>
       <div><div class="cat-amount">${fmt(amt)}</div><div class="cat-pct">${pct}%</div></div>
-      <div class="cat-arrow">›</div>
+      <div class="cat-arrow">&#8250;</div>
     </div>`;
   }).join('');
 }
@@ -799,13 +799,10 @@ function navChart(dir){
   renderCharts();
 }
 function renderCharts(){
-  const {start,end,mainLabel,badge}=getDateRange(chartPeriod,chartOffset);
+  const {start,end,mainLabel,badge,totalLabel}=getDateRange(chartPeriod,chartOffset);
   document.getElementById('chart-period-label').textContent=mainLabel;
-  const bw=document.getElementById('chart-badge-wrap');
-  bw.style.display=badge?'block':'none';
-  bw.innerHTML=badge?'<span class="period-sub">'+badge+'</span>':'';
+  setSubLabel('chart-badge-wrap',badge);
   document.getElementById('chart-next-btn').classList.toggle('disabled',chartOffset>=0);
-  document.getElementById('chart-prev-btn').classList.toggle('disabled',false);
   renderTrendChart();
   renderPieChart();
   renderHBars();
@@ -989,6 +986,29 @@ function exportCSV(scope){
   downloadFile([headers.join(','),...lines].join('\n'),scope==='period'?'spendly_period.csv':'spendly_all.csv','text/csv');
 }
 function exportJSON(){downloadFile(JSON.stringify({exported:new Date().toISOString(),expenses},null,2),'spendly_backup.json','application/json');}
+function triggerImport(){document.getElementById('import-file-input').click();}
+function importJSON(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      const imported=Array.isArray(data)?data:(data.expenses||[]);
+      if(!imported.length){alert('No expenses found in this file.');return;}
+      if(confirm('Import '+imported.length+' transactions? This will REPLACE your current data.')){
+        expenses=imported;
+        save();
+        document.getElementById('export-modal').style.display='none';
+        renderOverview();
+        renderTxPage();
+        alert('Imported '+imported.length+' transactions successfully!');
+      }
+    }catch(err){alert('Could not read file. Make sure it\'s a valid Spendly backup.');}
+    event.target.value='';
+  };
+  reader.readAsText(file);
+}
 
 // ── FORM ──
 function allStores(c){const def=STORES[c]||['Other'],cus=customStores[c]||[];return[...def,...cus.filter(s=>!def.includes(s))];}
