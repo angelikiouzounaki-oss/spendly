@@ -134,26 +134,6 @@ Go to **Transactions → Export expenses** to access:
 
 ---
 
-## Updating the App
-
-1. Download the latest `index.html` from this repo
-2. Delete the existing `index.html` on GitHub
-3. Upload the new file and commit
-4. Wait ~1 minute for GitHub Pages to deploy
-5. Hard refresh in Safari: hold the refresh button → **Reload Without Content Blockers**
-
----
-
-## Custom App Icon
-
-1. Create a **180×180 pixel PNG** image
-2. Name it `icon.png`
-3. Upload it to this repo alongside `index.html`
-4. Remove Spendly from your iPhone home screen
-5. Re-add via Safari → Share → Add to Home Screen
-
----
-
 ## File Structure
 
 ```
